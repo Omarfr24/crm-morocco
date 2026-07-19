@@ -298,7 +298,7 @@ export async function recordPayment(
 
     revalidatePath(`/invoices/${invoiceId}`);
     revalidatePath("/invoices");
-    return { success: true, data: payment };
+    return { success: true, data: { ...payment, amount: Number(payment.amount) } };
   } catch (err) {
     log("error", "Failed to record payment", {
       invoiceId,

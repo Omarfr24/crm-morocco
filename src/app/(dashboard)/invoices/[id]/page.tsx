@@ -15,7 +15,11 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailPagePro
     notFound();
   }
 
-  const invoice = result.data;
+  const { payments: rawPayments, quotation, ...invoiceData } = result.data;
+  const payments = rawPayments.map((p) => ({
+    ...p,
+    amount: Number(p.amount),
+  }));
 
   async function handleRecordPayment(data: Parameters<typeof recordPayment>[1]) {
     "use server";
@@ -30,20 +34,18 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailPagePro
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Invoice — ${invoice.quotation.quoteNumber.replace("QT-", "INV-")}`}
-        description={`${invoice.quotation.customer.companyName} — ${invoice.status.replace("_", " ")}`}
+        title={`Invoice — ${quotation.quoteNumber.replace("QT-", "INV-")}`}
+        description={`${quotation.customer.companyName} — ${invoiceData.status.replace("_", " ")}`}
       />
       <InvoiceDetail
         invoice={{
-          ...invoice,
-          totalAmount: Number(invoice.totalAmount),
-          paidAmount: Number(invoice.paidAmount),
+          ...invoiceData,
+          totalAmount: Number(invoiceData.totalAmount),
+          paidAmount: Number(invoiceData.paidAmount),
+          quotation,
         }}
-        payments={invoice.payments.map((p) => ({
-          ...p,
-          amount: Number(p.amount),
-        }))}
-        currency={invoice.quotation.currency}
+        payments={payments}
+        currency={quotation.currency}
         onRecordPayment={handleRecordPayment}
         onDeletePayment={handleDeletePayment}
       />

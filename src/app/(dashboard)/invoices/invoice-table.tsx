@@ -17,8 +17,8 @@ import { StatusBadge } from "@/components/shared/status-badge";
 type InvoiceItem = {
   id: string;
   status: string;
-  totalAmount: unknown;
-  paidAmount: unknown;
+  totalAmount: number;
+  paidAmount: number;
   createdAt: Date;
   quotation: {
     quoteNumber: string;

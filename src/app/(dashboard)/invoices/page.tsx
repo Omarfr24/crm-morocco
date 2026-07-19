@@ -14,7 +14,13 @@ export default async function InvoicesPage({ searchParams }: InvoicesPageProps) 
 
   const result = await getInvoices({ search, status, page });
 
-  const items = result.success ? result.data.items : [];
+  const items = result.success
+    ? result.data.items.map((item) => ({
+        ...item,
+        totalAmount: Number(item.totalAmount),
+        paidAmount: Number(item.paidAmount),
+      }))
+    : [];
   const total = result.success ? result.data.total : 0;
   const pageSize = 20;
 

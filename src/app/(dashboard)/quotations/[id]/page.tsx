@@ -18,8 +18,8 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
     notFound();
   }
 
-  const quotation = result.data;
-  const items = quotation.items.map((it) => ({
+  const { items: _rawItems, invoice: _invoice, ...quotationData } = result.data;
+  const items = _rawItems.map((it) => ({
     name: it.name,
     description: it.description ?? "",
     quantity: Number(it.quantity),
@@ -66,17 +66,17 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
   return (
     <div className="space-y-6">
       <PageHeader
-        title={quotation.quoteNumber}
-        description={`${quotation.customer.companyName} — ${quotation.status}`}
+        title={quotationData.quoteNumber}
+        description={`${quotationData.customer?.companyName} — ${quotationData.status}`}
       />
       <QuotationDetail
         quotation={{
-          ...quotation,
-          date: quotation.date,
-          expirationDate: quotation.expirationDate,
-          nextFollowUpDate: quotation.nextFollowUpDate,
-          lastFollowUpDate: quotation.lastFollowUpDate,
-          customer: quotation.customer,
+          ...quotationData,
+          date: result.data.date,
+          expirationDate: result.data.expirationDate,
+          nextFollowUpDate: result.data.nextFollowUpDate,
+          lastFollowUpDate: result.data.lastFollowUpDate,
+          customer: result.data.customer,
         }}
         items={items}
         customers={customers}
@@ -87,7 +87,7 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
         onSendEmail={handleSendEmail}
         onWhatsAppLink={handleWhatsAppLink}
         onConvertToInvoice={handleConvertToInvoice}
-        hasInvoice={!!quotation.invoice}
+        hasInvoice={!!_invoice}
       />
     </div>
   );
