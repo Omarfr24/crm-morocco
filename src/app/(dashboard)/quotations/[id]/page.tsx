@@ -18,7 +18,7 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
     notFound();
   }
 
-  const { items: _rawItems, invoice: _invoice, ...quotationData } = result.data;
+  const { items: _rawItems, invoice: _invoice, ...rawQuotation } = result.data;
   const items = _rawItems.map((it) => ({
     name: it.name,
     description: it.description ?? "",
@@ -27,6 +27,19 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
     discount: Number(it.discount),
     tax: Number(it.tax),
   }));
+
+  const quotationData = {
+    id: rawQuotation.id,
+    quoteNumber: rawQuotation.quoteNumber,
+    status: rawQuotation.status,
+    currency: rawQuotation.currency,
+    date: rawQuotation.date,
+    expirationDate: rawQuotation.expirationDate,
+    notes: rawQuotation.notes,
+    nextFollowUpDate: rawQuotation.nextFollowUpDate,
+    lastFollowUpDate: rawQuotation.lastFollowUpDate,
+    customer: rawQuotation.customer,
+  };
 
   const customersResult = await getCustomers({ pageSize: 200 });
   const customers = customersResult.success
@@ -70,14 +83,7 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
         description={`${quotationData.customer?.companyName} — ${quotationData.status}`}
       />
       <QuotationDetail
-        quotation={{
-          ...quotationData,
-          date: result.data.date,
-          expirationDate: result.data.expirationDate,
-          nextFollowUpDate: result.data.nextFollowUpDate,
-          lastFollowUpDate: result.data.lastFollowUpDate,
-          customer: result.data.customer,
-        }}
+        quotation={quotationData}
         items={items}
         customers={customers}
         quotationId={id}

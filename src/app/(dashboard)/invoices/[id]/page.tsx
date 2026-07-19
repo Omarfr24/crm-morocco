@@ -15,11 +15,29 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailPagePro
     notFound();
   }
 
-  const { payments: rawPayments, quotation, ...invoiceData } = result.data;
+  const { payments: rawPayments, ...rawInvoice } = result.data;
   const payments = rawPayments.map((p) => ({
-    ...p,
+    id: p.id,
     amount: Number(p.amount),
+    method: p.method,
+    date: p.date,
+    notes: p.notes,
+    createdAt: p.createdAt,
   }));
+
+  const invoiceData = {
+    id: rawInvoice.id,
+    status: rawInvoice.status,
+    totalAmount: Number(rawInvoice.totalAmount),
+    paidAmount: Number(rawInvoice.paidAmount),
+    createdAt: rawInvoice.createdAt,
+    quotation: {
+      quoteNumber: rawInvoice.quotation.quoteNumber,
+      currency: rawInvoice.quotation.currency,
+      notes: rawInvoice.quotation.notes,
+      customer: rawInvoice.quotation.customer,
+    },
+  };
 
   async function handleRecordPayment(data: Parameters<typeof recordPayment>[1]) {
     "use server";
@@ -34,18 +52,13 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailPagePro
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Invoice — ${quotation.quoteNumber.replace("QT-", "INV-")}`}
-        description={`${quotation.customer.companyName} — ${invoiceData.status.replace("_", " ")}`}
+        title={`Invoice — ${invoiceData.quotation.quoteNumber.replace("QT-", "INV-")}`}
+        description={`${invoiceData.quotation.customer.companyName} — ${invoiceData.status.replace("_", " ")}`}
       />
       <InvoiceDetail
-        invoice={{
-          ...invoiceData,
-          totalAmount: Number(invoiceData.totalAmount),
-          paidAmount: Number(invoiceData.paidAmount),
-          quotation,
-        }}
+        invoice={invoiceData}
         payments={payments}
-        currency={quotation.currency}
+        currency={invoiceData.quotation.currency}
         onRecordPayment={handleRecordPayment}
         onDeletePayment={handleDeletePayment}
       />
