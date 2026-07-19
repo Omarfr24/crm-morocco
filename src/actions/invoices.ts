@@ -244,7 +244,7 @@ export async function convertToInvoice(
 export async function recordPayment(
   invoiceId: string,
   input: PaymentInput
-): Promise<ActionResult<Awaited<ReturnType<typeof db.payment.create>>>> {
+): Promise<ActionResult<Omit<Awaited<ReturnType<typeof db.payment.create>>, 'amount'> & { amount: number }>> {
   try {
     await requireAuth();
 
