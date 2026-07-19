@@ -23,7 +23,7 @@ export async function sendQuotationEmail({
 
   try {
     await resend.emails.send({
-      from: process.env.COMPANY_EMAIL ?? "noreply@yourcompany.com",
+      from: process.env.RESEND_FROM_EMAIL ?? process.env.COMPANY_EMAIL ?? "noreply@yourcompany.com",
       to,
       subject: `Quotation ${quoteNumber}`,
       html: `

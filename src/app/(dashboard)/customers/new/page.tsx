@@ -10,17 +10,15 @@ export default function NewCustomerPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-2xl">
       <PageHeader
         title="New Customer"
         description="Add a new customer to your CRM"
       />
-      <div className="max-w-2xl">
-        <CustomerForm
-          onSubmit={handleSubmit}
-          submitLabel="Create Customer"
-        />
-      </div>
+      <CustomerForm
+        onSubmit={handleSubmit}
+        submitLabel="Create Customer"
+      />
     </div>
   );
 }

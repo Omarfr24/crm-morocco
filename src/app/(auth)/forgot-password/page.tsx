@@ -1,36 +1,42 @@
 import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft, Mail } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Forgot Password</CardTitle>
-        <CardDescription>
-          Please contact the system administrator to reset your password.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground text-center">
-          Self-service password reset will be available once email
-          notifications are configured.
-        </p>
-      </CardContent>
-      <CardFooter>
-        <Link href="/login" className="w-full">
-          <Button variant="outline" className="w-full">
-            Back to Sign In
-          </Button>
+    <div className="space-y-8">
+      <div className="text-center space-y-2">
+        <Link href="/" className="inline-flex items-center gap-2.5 mb-2">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground text-sm font-bold">
+            Q
+          </span>
         </Link>
-      </CardFooter>
-    </Card>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Forgot Password
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          We&apos;ll help you get back into your account.
+        </p>
+      </div>
+
+      <div className="rounded-xl border bg-card p-6 shadow-xs">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <span className="flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+            <Mail className="size-5" />
+          </span>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Please contact the system administrator to reset your password.
+            Self-service password reset will be available once email
+            notifications are configured.
+          </p>
+          <Link href="/login" className="w-full">
+            <Button variant="outline" className="w-full inline-flex items-center gap-1.5">
+              <ArrowLeft className="size-4" />
+              Back to Sign In
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

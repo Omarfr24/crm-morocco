@@ -6,16 +6,8 @@ import { type QuotationInput, calculateItemTotal, calculateQuotationTotal } from
 import { QuotationForm } from "@/components/shared/quotation-form";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +16,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Pencil,
+  Trash2,
+  Download,
+  MessageCircle,
+  Mail,
+  ArrowRight,
+  ChevronRight,
+} from "lucide-react";
 
 type Quotation = {
   id: string;
@@ -166,7 +167,7 @@ export function QuotationDetail({
         <QuotationForm
           customers={customers}
           defaultValues={{
-            customerId: "", // Will be set from existing data
+            customerId: "",
             currency: quotation.currency,
             date: quotation.date,
             expirationDate: quotation.expirationDate,
@@ -184,9 +185,10 @@ export function QuotationDetail({
   return (
     <div className="space-y-6">
       {error && (
-        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+        <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive">{error}</div>
       )}
-      <div className="flex flex-wrap items-center gap-3">
+
+      <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={quotation.status} />
         {actions.map((action) => (
           <Button
@@ -194,34 +196,40 @@ export function QuotationDetail({
             size="sm"
             disabled={statusLoading}
             onClick={() => handleStatus(action.next)}
+            className="inline-flex items-center gap-1.5"
           >
             {action.label}
+            <ChevronRight className="size-3.5" />
           </Button>
         ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
         {isDraft && (
           <>
-            <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
+            <Button size="sm" variant="outline" onClick={() => setEditing(true)} className="inline-flex items-center gap-1.5">
+              <Pencil className="size-3.5" />
               Edit
             </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => setShowDeleteDialog(true)}
-            >
+            <Button size="sm" variant="destructive" onClick={() => setShowDeleteDialog(true)} className="inline-flex items-center gap-1.5">
+              <Trash2 className="size-3.5" />
               Delete
             </Button>
           </>
         )}
-        <Button size="sm" variant="outline">
-          <a href={`/api/pdf/${quotationId}`} target="_blank" rel="noopener noreferrer">
-            Download PDF
+        <Button size="sm" variant="outline" className="inline-flex items-center gap-1.5">
+          <a href={`/api/pdf/${quotationId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5">
+            <Download className="size-3.5" />
+            PDF
           </a>
         </Button>
-        <Button size="sm" variant="outline" onClick={handleWhatsApp}>
+        <Button size="sm" variant="outline" onClick={handleWhatsApp} className="inline-flex items-center gap-1.5">
+          <MessageCircle className="size-3.5" />
           WhatsApp
         </Button>
-        <Button size="sm" variant="outline" onClick={() => setShowEmailDialog(true)}>
-          Send Email
+        <Button size="sm" variant="outline" onClick={() => setShowEmailDialog(true)} className="inline-flex items-center gap-1.5">
+          <Mail className="size-3.5" />
+          Email
         </Button>
         {onConvertToInvoice && (
           <Button
@@ -237,16 +245,17 @@ export function QuotationDetail({
               }
             }}
             disabled={converting || hasInvoice}
+            className="inline-flex items-center gap-1.5"
           >
             {converting ? "Converting..." : hasInvoice ? "Invoice Exists" : "Convert to Invoice"}
+            {!hasInvoice && !converting && <ArrowRight className="size-3.5" />}
           </Button>
         )}
       </div>
 
-      <Separator />
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-2 text-sm">
+      <div className="grid gap-6 sm:grid-cols-2">
+        <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Details</h3>
           <InfoRow label="Customer" value={quotation.customer?.companyName ?? "—"} />
           <InfoRow
             label="Date"
@@ -277,49 +286,74 @@ export function QuotationDetail({
             />
           )}
         </div>
-        <div className="space-y-2 text-sm">
+        <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Reference</h3>
           <InfoRow label="Quote Number" value={quotation.quoteNumber} />
           <InfoRow label="Currency" value={quotation.currency} />
           {quotation.notes && <InfoRow label="Notes" value={quotation.notes} />}
         </div>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Item</TableHead>
-              <TableHead className="w-[80px]">Qty</TableHead>
-              <TableHead className="w-[100px]">Unit Price</TableHead>
-              <TableHead className="w-[80px]">Disc%</TableHead>
-              <TableHead className="w-[80px]">Tax%</TableHead>
-              <TableHead className="w-[100px] text-right">Total</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      <div className="hidden md:block rounded-xl border overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b bg-muted/50">
+              <th className="text-left font-medium p-3">Item</th>
+              <th className="text-left font-medium p-3 w-[80px]">Qty</th>
+              <th className="text-left font-medium p-3 w-[100px]">Unit Price</th>
+              <th className="text-left font-medium p-3 w-[80px]">Disc%</th>
+              <th className="text-left font-medium p-3 w-[80px]">Tax%</th>
+              <th className="text-right font-medium p-3 w-[100px]">Total</th>
+            </tr>
+          </thead>
+          <tbody>
             {items.map((item, idx) => (
-              <TableRow key={idx}>
-                <TableCell>
+              <tr key={idx} className="border-b last:border-0">
+                <td className="p-3">
                   <span className="font-medium">{item.name}</span>
                   {item.description && (
                     <p className="text-xs text-muted-foreground">{item.description}</p>
                   )}
-                </TableCell>
-                <TableCell>{item.quantity}</TableCell>
-                <TableCell className="font-mono">{item.unitPrice.toFixed(2)}</TableCell>
-                <TableCell>{item.discount}%</TableCell>
-                <TableCell>{item.tax}%</TableCell>
-                <TableCell className="text-right font-mono">
+                </td>
+                <td className="p-3">{item.quantity}</td>
+                <td className="p-3 font-mono text-xs">{item.unitPrice.toFixed(2)}</td>
+                <td className="p-3">{item.discount}%</td>
+                <td className="p-3">{item.tax}%</td>
+                <td className="p-3 text-right font-mono text-xs">
                   {calculateItemTotal(item).toFixed(2)}
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="md:hidden space-y-2">
+        {items.map((item, idx) => (
+          <div key={idx} className="rounded-xl border bg-card p-4 text-sm">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <p className="font-medium">{item.name}</p>
+                {item.description && (
+                  <p className="text-xs text-muted-foreground">{item.description}</p>
+                )}
+              </div>
+              <span className="font-mono text-xs font-medium">
+                {calculateItemTotal(item).toFixed(2)}
+              </span>
+            </div>
+            <div className="flex gap-4 text-xs text-muted-foreground">
+              <span>Qty: {item.quantity}</span>
+              <span>Price: {item.unitPrice.toFixed(2)}</span>
+              {item.discount > 0 && <span>Disc: {item.discount}%</span>}
+              {item.tax > 0 && <span>Tax: {item.tax}%</span>}
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="flex justify-end">
-        <div className="w-64 space-y-1">
+        <div className="w-full sm:w-64 space-y-2">
           <Separator />
           <div className="flex justify-between pt-2 text-sm font-bold">
             <span>Total ({quotation.currency})</span>
@@ -366,7 +400,7 @@ export function QuotationDetail({
               disabled={emailLoading}
             />
             {emailMessage && (
-              <p className={`text-sm ${emailMessage.includes("success") ? "text-green-600" : "text-destructive"}`}>
+              <p className={`text-sm ${emailMessage.includes("success") ? "text-success" : "text-destructive"}`}>
                 {emailMessage}
               </p>
             )}
@@ -387,8 +421,9 @@ export function QuotationDetail({
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <span className="text-muted-foreground">{label}:</span> <span>{value || "—"}</span>
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span>{value || "—"}</span>
     </div>
   );
 }

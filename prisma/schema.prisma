@@ -172,3 +172,12 @@ enum PaymentMethod {
   CHECK
   OTHER
 }
+
+model CompanyProfile {
+  id      String @id @default(cuid())
+  name    String
+  address String
+  phone   String
+  email   String
+  logo    String?
+}

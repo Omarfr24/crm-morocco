@@ -7,15 +7,8 @@ import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { log } from "@/lib/logger";
+import { ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -48,17 +41,25 @@ export default function LoginPage() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Welcome Back</CardTitle>
-        <CardDescription>
-          Sign in to your CRM account
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
+    <div className="space-y-8">
+      <div className="text-center space-y-2">
+        <Link href="/" className="inline-flex items-center gap-2.5 mb-2">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground text-sm font-bold">
+            Q
+          </span>
+        </Link>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Welcome back
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          Sign in to your QuoteFlow account
+        </p>
+      </div>
+
+      <div className="rounded-xl border bg-card p-6 shadow-xs">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive">
               {error}
             </div>
           )}
@@ -80,7 +81,7 @@ export default function LoginPage() {
               <Label htmlFor="password">Password</Label>
               <Link
                 href="/forgot-password"
-                className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 Forgot password?
               </Link>
@@ -96,13 +97,18 @@ export default function LoginPage() {
               disabled={loading}
             />
           </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? (
+              "Signing in..."
+            ) : (
+              <>
+                Sign In
+                <ArrowRight className="size-4 ml-1" />
+              </>
+            )}
           </Button>
-        </CardFooter>
-      </form>
-    </Card>
+        </form>
+      </div>
+    </div>
   );
 }

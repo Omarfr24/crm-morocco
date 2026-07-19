@@ -10,14 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -32,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Plus, Trash2 } from "lucide-react";
 
 type Invoice = {
   id: string;
@@ -159,18 +152,20 @@ export function InvoiceDetail({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={invoice.status} />
         {remaining > 0 && (
-          <Button size="sm" onClick={() => setShowPaymentDialog(true)}>
+          <Button size="sm" onClick={() => setShowPaymentDialog(true)} className="inline-flex items-center gap-1.5">
+            <Plus className="size-3.5" />
             Record Payment
           </Button>
         )}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-2 text-sm">
-          <InfoRow label="Customer" value={invoice.quotation.customer.companyName} />
+      <div className="grid gap-6 sm:grid-cols-2">
+        <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Customer</h3>
+          <InfoRow label="Company" value={invoice.quotation.customer.companyName} />
           <InfoRow label="Contact" value={invoice.quotation.customer.contactPerson} />
           <InfoRow label="Phone" value={invoice.quotation.customer.phone} />
           <InfoRow label="Email" value={invoice.quotation.customer.email} />
@@ -178,79 +173,113 @@ export function InvoiceDetail({
             <InfoRow label="Address" value={invoice.quotation.customer.address} />
           )}
         </div>
-        <div className="space-y-3">
-          <div className="rounded-lg border bg-card p-4 space-y-2">
+        <div className="space-y-4">
+          <div className="rounded-xl border bg-card p-4 space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Total</span>
               <span className="font-bold">{invoice.totalAmount.toFixed(2)} {currency}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Paid</span>
-              <span className="font-medium text-green-600">{invoice.paidAmount.toFixed(2)} {currency}</span>
+              <span className="font-medium text-success">{invoice.paidAmount.toFixed(2)} {currency}</span>
             </div>
             <Separator />
             <div className="flex justify-between text-sm font-bold">
               <span>Remaining</span>
-              <span className={remaining > 0 ? "text-destructive" : "text-green-600"}>
+              <span className={remaining > 0 ? "text-destructive" : "text-success"}>
                 {remaining.toFixed(2)} {currency}
               </span>
             </div>
           </div>
-          <div className="text-sm text-muted-foreground">
-            <p>Quote: {invoice.quotation.quoteNumber}</p>
-            <p>Created: {new Date(invoice.createdAt).toLocaleDateString("en-GB", {
-              day: "2-digit", month: "long", year: "numeric",
-            })}</p>
+          <div className="rounded-xl border bg-card p-4 space-y-1 text-sm">
+            <InfoRow label="Quote" value={invoice.quotation.quoteNumber} />
+            <InfoRow
+              label="Created"
+              value={new Date(invoice.createdAt).toLocaleDateString("en-GB", {
+                day: "2-digit", month: "long", year: "numeric",
+              })}
+            />
           </div>
         </div>
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-lg font-semibold">Payment History</h3>
+        <h3 className="text-base font-semibold">Payment History</h3>
         {payments.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No payments recorded yet.</p>
+          <div className="rounded-xl border bg-card p-8 text-center">
+            <p className="text-sm text-muted-foreground">No payments recorded yet.</p>
+          </div>
         ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Method</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Notes</TableHead>
-                  <TableHead className="w-[50px]" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          <div className="hidden md:block rounded-xl border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="text-left font-medium p-3">Date</th>
+                  <th className="text-left font-medium p-3">Method</th>
+                  <th className="text-right font-medium p-3">Amount</th>
+                  <th className="text-left font-medium p-3">Notes</th>
+                  <th className="p-3 w-[50px]" />
+                </tr>
+              </thead>
+              <tbody>
                 {payments.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell>
+                  <tr key={p.id} className="border-b last:border-0">
+                    <td className="p-3 text-xs">
                       {new Date(p.date).toLocaleDateString("en-GB", {
                         day: "2-digit", month: "short", year: "numeric",
                       })}
-                    </TableCell>
-                    <TableCell>
+                    </td>
+                    <td className="p-3 text-xs">
                       {PAYMENT_METHODS.find((m) => m.value === p.method)?.label ?? p.method}
-                    </TableCell>
-                    <TableCell className="text-right font-mono">
+                    </td>
+                    <td className="p-3 text-right font-mono text-xs">
                       {p.amount.toFixed(2)} {currency}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
+                    </td>
+                    <td className="p-3 text-muted-foreground text-xs">
                       {p.notes || "—"}
-                    </TableCell>
-                    <TableCell>
+                    </td>
+                    <td className="p-3">
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="icon"
+                        className="size-7 text-muted-foreground hover:text-destructive"
                         onClick={() => handleDeletePayment(p.id)}
                       >
-                        ✕
+                        <Trash2 className="size-3.5" />
                       </Button>
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {payments.length > 0 && (
+          <div className="md:hidden space-y-2">
+            {payments.map((p) => (
+              <div key={p.id} className="rounded-xl border bg-card p-4 flex items-center justify-between">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">
+                    {p.amount.toFixed(2)} {currency}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {PAYMENT_METHODS.find((m) => m.value === p.method)?.label ?? p.method} ·{" "}
+                    {new Date(p.date).toLocaleDateString("en-GB", {
+                      day: "2-digit", month: "short", year: "numeric",
+                    })}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7 shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => handleDeletePayment(p.id)}
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -265,7 +294,7 @@ export function InvoiceDetail({
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive">
                 {error}
               </div>
             )}
@@ -293,7 +322,7 @@ export function InvoiceDetail({
                 onValueChange={(v) => { if (v) updateField("method", v); }}
                 disabled={loading}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -349,8 +378,9 @@ export function InvoiceDetail({
 
 function InfoRow({ label, value }: { label: string; value: string | null }) {
   return (
-    <div>
-      <span className="text-muted-foreground">{label}:</span> <span>{value || "—"}</span>
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span>{value || "—"}</span>
     </div>
   );
 }

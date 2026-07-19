@@ -4,11 +4,11 @@ import { db } from "@/lib/db";
 import { QuotationDocument } from "@/components/pdf/quotation-document";
 import { log } from "@/lib/logger";
 
-const COMPANY = {
-  name: process.env.COMPANY_NAME ?? "Your Company",
-  address: process.env.COMPANY_ADDRESS ?? "Casablanca, Morocco",
-  phone: process.env.COMPANY_PHONE ?? "+212 600 000 000",
-  email: process.env.COMPANY_EMAIL ?? "info@yourcompany.com",
+const DEFAULT_COMPANY = {
+  name: "Your Company",
+  address: "Casablanca, Morocco",
+  phone: "+212 600 000 000",
+  email: "info@yourcompany.com",
 };
 
 function formatDate(d: Date | string): string {
@@ -46,6 +46,16 @@ export async function GET(
       return new Response("Quotation not found", { status: 404 });
     }
 
+    const companyProfile = await db.companyProfile.findFirst();
+    const company = companyProfile
+      ? {
+          name: companyProfile.name,
+          address: companyProfile.address,
+          phone: companyProfile.phone,
+          email: companyProfile.email,
+        }
+      : DEFAULT_COMPANY;
+
     const pdfBuffer = await renderToBuffer(
       <QuotationDocument
         data={{
@@ -66,7 +76,7 @@ export async function GET(
             tax: Number(it.tax),
             total: Number(it.total),
           })),
-          company: COMPANY,
+          company,
         }}
       />
     );

@@ -59,7 +59,8 @@ export const ModelName = {
   Quotation: 'Quotation',
   QuotationItem: 'QuotationItem',
   Invoice: 'Invoice',
-  Payment: 'Payment'
+  Payment: 'Payment',
+  CompanyProfile: 'CompanyProfile'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -210,6 +211,18 @@ export const PaymentScalarFieldEnum = {
 } as const
 
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
+
+
+export const CompanyProfileScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  address: 'address',
+  phone: 'phone',
+  email: 'email',
+  logo: 'logo'
+} as const
+
+export type CompanyProfileScalarFieldEnum = (typeof CompanyProfileScalarFieldEnum)[keyof typeof CompanyProfileScalarFieldEnum]
 
 
 export const SortOrder = {

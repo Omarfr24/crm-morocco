@@ -20,15 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
+import { Plus, Trash2 } from "lucide-react";
 
 type CustomerOption = { id: string; companyName: string };
 
@@ -164,12 +157,12 @@ export function QuotationForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {serverError && (
-        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive">
           {serverError}
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-2">
           <Label>Customer *</Label>
           <Select
@@ -177,7 +170,7 @@ export function QuotationForm({
             onValueChange={(v) => { if (v) updateField("customerId", v); }}
             disabled={loading}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a customer" />
             </SelectTrigger>
             <SelectContent>
@@ -230,110 +223,205 @@ export function QuotationForm({
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Label>Line Items *</Label>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="min-w-[200px]">Item Name</TableHead>
-                <TableHead className="w-[80px]">Qty</TableHead>
-                <TableHead className="w-[120px]">Unit Price</TableHead>
-                <TableHead className="w-[80px]">Disc %</TableHead>
-                <TableHead className="w-[80px]">Tax %</TableHead>
-                <TableHead className="w-[120px] text-right">Total</TableHead>
-                <TableHead className="w-[50px]" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {form.items.map((item, idx) => {
-                const total = calculateItemTotal(item);
-                return (
-                  <TableRow key={idx}>
-                    <TableCell>
-                      <Input
-                        value={item.name}
-                        onChange={(e) => updateItem(idx, "name", e.target.value)}
-                        placeholder="Item name"
-                        disabled={loading}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(idx, "quantity", e.target.value)}
-                        disabled={loading}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={item.unitPrice}
-                        onChange={(e) => updateItem(idx, "unitPrice", e.target.value)}
-                        disabled={loading}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        value={item.discount}
-                        onChange={(e) => updateItem(idx, "discount", e.target.value)}
-                        disabled={loading}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        value={item.tax}
-                        onChange={(e) => updateItem(idx, "tax", e.target.value)}
-                        disabled={loading}
-                      />
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-sm">
-                      {total.toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      {form.items.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeItem(idx)}
+
+        <div className="hidden md:block rounded-xl border overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="text-left font-medium p-3 min-w-[200px]">Item Name</th>
+                  <th className="text-left font-medium p-3 w-[80px]">Qty</th>
+                  <th className="text-left font-medium p-3 w-[120px]">Unit Price</th>
+                  <th className="text-left font-medium p-3 w-[80px]">Disc %</th>
+                  <th className="text-left font-medium p-3 w-[80px]">Tax %</th>
+                  <th className="text-right font-medium p-3 w-[120px]">Total</th>
+                  <th className="p-3 w-[50px]" />
+                </tr>
+              </thead>
+              <tbody>
+                {form.items.map((item, idx) => {
+                  const total = calculateItemTotal(item);
+                  return (
+                    <tr key={idx} className="border-b last:border-0">
+                      <td className="p-2">
+                        <Input
+                          value={item.name}
+                          onChange={(e) => updateItem(idx, "name", e.target.value)}
+                          placeholder="Item name"
                           disabled={loading}
-                        >
-                          ✕
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.quantity}
+                          onChange={(e) => updateItem(idx, "quantity", e.target.value)}
+                          disabled={loading}
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.unitPrice}
+                          onChange={(e) => updateItem(idx, "unitPrice", e.target.value)}
+                          disabled={loading}
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          value={item.discount}
+                          onChange={(e) => updateItem(idx, "discount", e.target.value)}
+                          disabled={loading}
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          value={item.tax}
+                          onChange={(e) => updateItem(idx, "tax", e.target.value)}
+                          disabled={loading}
+                        />
+                      </td>
+                      <td className="p-2 text-right font-mono text-sm">
+                        {total.toFixed(2)}
+                      </td>
+                      <td className="p-2">
+                        {form.items.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeItem(idx)}
+                            disabled={loading}
+                            className="size-8 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
+
+        <div className="md:hidden space-y-3">
+          {form.items.map((item, idx) => {
+            const total = calculateItemTotal(item);
+            return (
+              <div key={idx} className="rounded-xl border bg-card p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    Item {idx + 1}
+                  </span>
+                  {form.items.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeItem(idx)}
+                      disabled={loading}
+                      className="size-7 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
+                  )}
+                </div>
+                <Input
+                  value={item.name}
+                  onChange={(e) => updateItem(idx, "name", e.target.value)}
+                  placeholder="Item name"
+                  disabled={loading}
+                />
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground">Qty</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={item.quantity}
+                      onChange={(e) => updateItem(idx, "quantity", e.target.value)}
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground">Price</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={item.unitPrice}
+                      onChange={(e) => updateItem(idx, "unitPrice", e.target.value)}
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground">Total</span>
+                    <div className="h-10 flex items-center px-3 font-mono text-sm border rounded-lg bg-muted/50">
+                      {total.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground">Disc %</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value={item.discount}
+                      onChange={(e) => updateItem(idx, "discount", e.target.value)}
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground">Tax %</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      value={item.tax}
+                      onChange={(e) => updateItem(idx, "tax", e.target.value)}
+                      disabled={loading}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         {fieldErrors["items"] && (
           <p className="text-sm text-destructive">{fieldErrors["items"]}</p>
         )}
-        <Button type="button" variant="outline" size="sm" onClick={addItem} disabled={loading}>
-          + Add Item
+        <Button type="button" variant="outline" size="sm" onClick={addItem} disabled={loading} className="inline-flex items-center gap-1.5">
+          <Plus className="size-3.5" />
+          Add Item
         </Button>
       </div>
 
       <Separator />
 
       <div className="flex justify-end">
-        <div className="w-64 space-y-2">
+        <div className="w-full sm:w-64 space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Total ({currency})</span>
             <span className="text-lg font-bold">
@@ -355,12 +443,12 @@ export function QuotationForm({
         />
       </div>
 
-      <div className="flex gap-3">
-        <Button type="submit" disabled={loading}>
-          {loading ? "Saving..." : submitLabel}
-        </Button>
-        <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading}>
+      <div className="flex flex-col-reverse gap-3 sm:flex-row">
+        <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading} className="sm:w-auto">
           Cancel
+        </Button>
+        <Button type="submit" disabled={loading} className="sm:w-auto">
+          {loading ? "Saving..." : submitLabel}
         </Button>
       </div>
     </form>

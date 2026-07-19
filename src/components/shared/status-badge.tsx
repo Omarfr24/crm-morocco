@@ -14,6 +14,18 @@ const STATUS_STYLES: Record<string, StatusVariant> = {
   PAID: "default",
 };
 
+const STATUS_COLORS: Record<string, string> = {
+  DRAFT: "",
+  SENT: "",
+  PENDING: "bg-warning/10 text-warning border-warning/20",
+  ACCEPTED: "bg-success/10 text-success border-success/20",
+  REJECTED: "",
+  EXPIRED: "",
+  UNPAID: "",
+  PARTIALLY_PAID: "bg-warning/10 text-warning border-warning/20",
+  PAID: "bg-success/10 text-success border-success/20",
+};
+
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: "Draft",
   SENT: "Sent",
@@ -33,6 +45,11 @@ interface StatusBadgeProps {
 export function StatusBadge({ status }: StatusBadgeProps) {
   const variant = STATUS_STYLES[status] ?? "outline";
   const label = STATUS_LABELS[status] ?? status;
+  const colors = STATUS_COLORS[status] ?? "";
 
-  return <Badge variant={variant}>{label}</Badge>;
+  return (
+    <Badge variant={variant} className={colors}>
+      {label}
+    </Badge>
+  );
 }

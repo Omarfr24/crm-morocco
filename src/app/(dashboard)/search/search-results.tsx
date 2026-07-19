@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { Search, FileText, Users, Receipt } from "lucide-react";
 
 type SearchData = {
   customers: { id: string; companyName: string; contactPerson: string | null; email: string | null }[];
@@ -35,62 +36,64 @@ export function SearchResults({ initialData }: { initialData: SearchData }) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Search</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Search</h1>
+        <p className="text-muted-foreground text-sm">
           Search across customers, quotations, and invoices
         </p>
       </div>
 
-      <form onSubmit={handleSearch} className="flex gap-2">
+      <form onSubmit={handleSearch} className="relative max-w-lg">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
         <Input
           placeholder="Search by name, company, quote number..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          className="max-w-lg"
+          className="pl-9"
         />
-        <button
-          type="submit"
-          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
-        >
-          {pending ? "Searching..." : "Search"}
-        </button>
       </form>
 
       {q && !hasResults && (
-        <p className="text-sm text-muted-foreground">No results found.</p>
+        <div className="rounded-xl border bg-card p-8 text-center">
+          <Search className="size-10 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">No results found for &ldquo;{q}&rdquo;</p>
+        </div>
       )}
 
       {customers.length > 0 && (
-        <Section title="Customers">
+        <Section title="Customers" icon={<Users className="size-4" />} count={customers.length}>
           {customers.map((c) => (
             <Link
               key={c.id}
               href={`/customers/${c.id}`}
-              className="flex items-center justify-between rounded-md border p-3 text-sm hover:bg-accent transition-colors"
+              className="flex items-center justify-between rounded-xl border bg-card p-3.5 text-sm hover:shadow-xs transition-all"
             >
-              <div>
+              <div className="min-w-0">
                 <span className="font-medium">{c.companyName}</span>
                 {c.contactPerson && (
-                  <span className="text-muted-foreground ml-2">— {c.contactPerson}</span>
+                  <span className="text-muted-foreground ml-1.5">
+                    · {c.contactPerson}
+                  </span>
                 )}
               </div>
-              <span className="text-xs text-muted-foreground">{c.email || "—"}</span>
+              <span className="text-xs text-muted-foreground shrink-0 ml-3">{c.email || "—"}</span>
             </Link>
           ))}
         </Section>
       )}
 
       {quotations.length > 0 && (
-        <Section title="Quotations">
+        <Section title="Quotations" icon={<FileText className="size-4" />} count={quotations.length}>
           {quotations.map((qt) => (
             <Link
               key={qt.id}
               href={`/quotations/${qt.id}`}
-              className="flex items-center justify-between rounded-md border p-3 text-sm hover:bg-accent transition-colors"
+              className="flex items-center justify-between rounded-xl border bg-card p-3.5 text-sm hover:shadow-xs transition-all"
             >
-              <div>
-                <span className="font-medium">{qt.quoteNumber}</span>
-                <span className="text-muted-foreground ml-2">— {qt.customer.companyName}</span>
+              <div className="min-w-0">
+                <span className="font-mono font-medium text-xs">{qt.quoteNumber}</span>
+                <span className="text-muted-foreground ml-1.5">
+                  · {qt.customer.companyName}
+                </span>
               </div>
               <StatusBadge status={qt.status} />
             </Link>
@@ -99,19 +102,19 @@ export function SearchResults({ initialData }: { initialData: SearchData }) {
       )}
 
       {invoices.length > 0 && (
-        <Section title="Invoices">
+        <Section title="Invoices" icon={<Receipt className="size-4" />} count={invoices.length}>
           {invoices.map((inv) => (
             <Link
               key={inv.id}
               href={`/invoices/${inv.id}`}
-              className="flex items-center justify-between rounded-md border p-3 text-sm hover:bg-accent transition-colors"
+              className="flex items-center justify-between rounded-xl border bg-card p-3.5 text-sm hover:shadow-xs transition-all"
             >
-              <div>
-                <span className="font-medium">
+              <div className="min-w-0">
+                <span className="font-mono font-medium text-xs">
                   {inv.quotation.quoteNumber.replace("QT-", "INV-")}
                 </span>
-                <span className="text-muted-foreground ml-2">
-                  — {inv.quotation.customer.companyName}
+                <span className="text-muted-foreground ml-1.5">
+                  · {inv.quotation.customer.companyName}
                 </span>
               </div>
               <StatusBadge status={inv.status} />
@@ -125,15 +128,23 @@ export function SearchResults({ initialData }: { initialData: SearchData }) {
 
 function Section({
   title,
+  icon,
+  count,
   children,
 }: {
   title: string;
+  icon: React.ReactNode;
+  count: number;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-2">{title}</h2>
-      <div className="space-y-2">{children}</div>
+      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        {icon}
+        {title}
+        <span className="text-xs font-normal text-muted-foreground/60">({count})</span>
+      </h2>
+      <div className="space-y-1.5">{children}</div>
     </div>
   );
 }

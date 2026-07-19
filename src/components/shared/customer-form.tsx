@@ -79,7 +79,7 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="companyName">Company Name *</Label>
           <Input
@@ -182,17 +182,18 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
         )}
       </div>
 
-      <div className="flex gap-3">
-        <Button type="submit" disabled={loading}>
-          {loading ? "Saving..." : submitLabel}
-        </Button>
+      <div className="flex flex-col-reverse gap-3 sm:flex-row">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.back()}
           disabled={loading}
+          className="sm:w-auto"
         >
           Cancel
+        </Button>
+        <Button type="submit" disabled={loading} className="sm:w-auto">
+          {loading ? "Saving..." : submitLabel}
         </Button>
       </div>
     </form>

@@ -392,7 +392,8 @@ export const ModelName = {
   Quotation: 'Quotation',
   QuotationItem: 'QuotationItem',
   Invoice: 'Invoice',
-  Payment: 'Payment'
+  Payment: 'Payment',
+  CompanyProfile: 'CompanyProfile'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -408,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "customer" | "quotation" | "quotationItem" | "invoice" | "payment"
+    modelProps: "user" | "session" | "account" | "verification" | "customer" | "quotation" | "quotationItem" | "invoice" | "payment" | "companyProfile"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1078,6 +1079,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CompanyProfile: {
+      payload: Prisma.$CompanyProfilePayload<ExtArgs>
+      fields: Prisma.CompanyProfileFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompanyProfileFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyProfilePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompanyProfileFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyProfilePayload>
+        }
+        findFirst: {
+          args: Prisma.CompanyProfileFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyProfilePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompanyProfileFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyProfilePayload>
+        }
+        findMany: {
+          args: Prisma.CompanyProfileFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyProfilePayload>[]
+        }
+        create: {
+          args: Prisma.CompanyProfileCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyProfilePayload>
+        }
+        createMany: {
+          args: Prisma.CompanyProfileCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CompanyProfileCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyProfilePayload>[]
+        }
+        delete: {
+          args: Prisma.CompanyProfileDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyProfilePayload>
+        }
+        update: {
+          args: Prisma.CompanyProfileUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyProfilePayload>
+        }
+        deleteMany: {
+          args: Prisma.CompanyProfileDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompanyProfileUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CompanyProfileUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyProfilePayload>[]
+        }
+        upsert: {
+          args: Prisma.CompanyProfileUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyProfilePayload>
+        }
+        aggregate: {
+          args: Prisma.CompanyProfileAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCompanyProfile>
+        }
+        groupBy: {
+          args: Prisma.CompanyProfileGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyProfileGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CompanyProfileCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyProfileCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1249,6 +1324,18 @@ export const PaymentScalarFieldEnum = {
 } as const
 
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
+
+
+export const CompanyProfileScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  address: 'address',
+  phone: 'phone',
+  email: 'email',
+  logo: 'logo'
+} as const
+
+export type CompanyProfileScalarFieldEnum = (typeof CompanyProfileScalarFieldEnum)[keyof typeof CompanyProfileScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1504,6 +1591,7 @@ export type GlobalOmitConfig = {
   quotationItem?: Prisma.QuotationItemOmit
   invoice?: Prisma.InvoiceOmit
   payment?: Prisma.PaymentOmit
+  companyProfile?: Prisma.CompanyProfileOmit
 }
 
 /* Types for Logging */

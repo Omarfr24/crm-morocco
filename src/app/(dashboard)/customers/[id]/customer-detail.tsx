@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Pencil, Trash2 } from "lucide-react";
 
 type Customer = {
   id: string;
@@ -84,18 +85,20 @@ export function CustomerDetail({ customer, onUpdate, onDelete }: CustomerDetailP
   return (
     <div className="space-y-6">
       <div className="flex gap-2">
-        <Button onClick={() => setEditing(true)}>Edit</Button>
-        <Button variant="destructive" onClick={() => setShowDeleteDialog(true)}>
+        <Button onClick={() => setEditing(true)} className="inline-flex items-center gap-1.5" size="sm">
+          <Pencil className="size-3.5" />
+          Edit
+        </Button>
+        <Button variant="destructive" onClick={() => setShowDeleteDialog(true)} size="sm" className="inline-flex items-center gap-1.5">
+          <Trash2 className="size-3.5" />
           Delete
         </Button>
       </div>
 
-      <Separator />
-
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Contact Information</h3>
-          <div className="space-y-2 text-sm">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Contact Information</h3>
+          <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
             <InfoRow label="Company" value={customer.companyName} />
             <InfoRow label="Contact Person" value={customer.contactPerson} />
             <InfoRow label="Phone" value={customer.phone} />
@@ -105,8 +108,8 @@ export function CustomerDetail({ customer, onUpdate, onDelete }: CustomerDetailP
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Additional Details</h3>
-          <div className="space-y-2 text-sm">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Additional Details</h3>
+          <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
             <InfoRow label="Address" value={customer.address} />
             <InfoRow label="Notes" value={customer.notes} />
             <InfoRow
@@ -157,8 +160,8 @@ export function CustomerDetail({ customer, onUpdate, onDelete }: CustomerDetailP
 
 function InfoRow({ label, value }: { label: string; value: string | null }) {
   return (
-    <div>
-      <span className="text-muted-foreground">{label}:</span>{" "}
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs text-muted-foreground">{label}</span>
       <span>{value || "—"}</span>
     </div>
   );

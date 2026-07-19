@@ -14,6 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type QuotationItem = {
   id: string;
@@ -95,20 +97,18 @@ export function QuotationTable({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-3">
-        <form onSubmit={handleSearch} className="flex gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <form onSubmit={handleSearch} className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <Input
             placeholder="Search by quote # or customer..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="max-w-sm"
+            className="pl-9"
           />
-          <Button type="submit" variant="secondary" disabled={isPending}>
-            Search
-          </Button>
         </form>
 
-        <div className="flex gap-1">
+        <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
           {STATUS_OPTIONS.map((opt) => (
             <Button
               key={opt.value}
@@ -116,6 +116,10 @@ export function QuotationTable({
               size="sm"
               disabled={isPending}
               onClick={() => handleStatusFilter(opt.value)}
+              className={cn(
+                "shrink-0 text-xs",
+                statusFilter === opt.value && "shadow-xs"
+              )}
             >
               {opt.label}
             </Button>
@@ -123,10 +127,10 @@ export function QuotationTable({
         </div>
       </div>
 
-      <div className="rounded-md border bg-card">
+      <div className="hidden md:block rounded-xl border overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="hover:bg-transparent">
               <TableHead>Quote #</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Date</TableHead>
@@ -136,12 +140,16 @@ export function QuotationTable({
           <TableBody>
             {items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                  No quotations found.{" "}
-                  <Link href="/quotations/new" className="underline">
-                    Create one
-                  </Link>
-                  .
+                <TableCell colSpan={4} className="h-32 text-center">
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                    <p className="text-sm">No quotations found.</p>
+                    <Link
+                      href="/quotations/new"
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Create one
+                    </Link>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
@@ -151,11 +159,11 @@ export function QuotationTable({
                   className="cursor-pointer"
                   onClick={() => router.push(`/quotations/${q.id}`)}
                 >
-                  <TableCell className="font-mono font-medium">
+                  <TableCell className="font-mono font-medium text-xs">
                     {q.quoteNumber}
                   </TableCell>
                   <TableCell>{q.customer?.companyName ?? "—"}</TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="text-muted-foreground text-xs">
                     {new Date(q.date).toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
@@ -172,6 +180,45 @@ export function QuotationTable({
         </Table>
       </div>
 
+      <div className="md:hidden space-y-2">
+        {items.length === 0 ? (
+          <div className="rounded-xl border bg-card p-8 text-center">
+            <p className="text-sm text-muted-foreground mb-2">No quotations found.</p>
+            <Link
+              href="/quotations/new"
+              className="text-sm text-primary hover:underline"
+            >
+              Create one
+            </Link>
+          </div>
+        ) : (
+          items.map((q) => (
+            <Link
+              key={q.id}
+              href={`/quotations/${q.id}`}
+              className="block rounded-xl border bg-card p-4 hover:shadow-xs transition-all"
+            >
+              <div className="flex items-start justify-between">
+                <div className="min-w-0">
+                  <p className="font-mono font-medium text-xs">{q.quoteNumber}</p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {q.customer?.companyName ?? "—"}
+                  </p>
+                </div>
+                <StatusBadge status={q.status} />
+              </div>
+              <div className="mt-2 text-xs text-muted-foreground">
+                {new Date(q.date).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </div>
+            </Link>
+          ))
+        )}
+      </div>
+
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
@@ -183,7 +230,9 @@ export function QuotationTable({
               size="sm"
               disabled={page <= 1 || isPending}
               onClick={() => goToPage(page - 1)}
+              className="inline-flex items-center gap-1"
             >
+              <ChevronLeft className="size-3.5" />
               Previous
             </Button>
             <Button
@@ -191,8 +240,10 @@ export function QuotationTable({
               size="sm"
               disabled={page >= totalPages || isPending}
               onClick={() => goToPage(page + 1)}
+              className="inline-flex items-center gap-1"
             >
               Next
+              <ChevronRight className="size-3.5" />
             </Button>
           </div>
         </div>

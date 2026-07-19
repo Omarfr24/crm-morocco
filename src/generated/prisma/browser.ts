@@ -62,3 +62,8 @@ export type Invoice = Prisma.InvoiceModel
  * 
  */
 export type Payment = Prisma.PaymentModel
+/**
+ * Model CompanyProfile
+ * 
+ */
+export type CompanyProfile = Prisma.CompanyProfileModel
