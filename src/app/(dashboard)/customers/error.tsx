@@ -20,9 +20,9 @@ export default function CustomersError({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-16">
-      <span className="flex size-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
-        <AlertTriangle className="size-6" />
+    <div className="flex flex-col items-center justify-center gap-5 py-16 animate-fade-in">
+      <span className="flex size-16 items-center justify-center rounded-3xl bg-destructive/10 text-destructive">
+        <AlertTriangle className="size-7" />
       </span>
       <div className="text-center">
         <h2 className="text-lg font-semibold">{t("failedToLoadCustomers")}</h2>

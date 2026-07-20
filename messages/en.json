@@ -25,7 +25,8 @@
     "createOne": "Create one",
     "send": "Send",
     "sending": "Sending…",
-    "all": "All"
+    "all": "All",
+    "actions": "Actions"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -114,10 +115,11 @@
     "notesLabel": "Notes",
     "notesPlaceholder": "Internal notes about this customer…",
     "deleteCustomer": "Delete Customer",
-    "deleteConfirm": "Are you sure you want to delete <strong>{name}</strong>? This action cannot be undone.",
+    "deleteConfirm": "Are you sure you want to delete {name}? This action cannot be undone.",
     "saveChanges": "Save Changes",
     "contactLabel": "Contact: {name}",
-    "failedToDelete": "Failed to delete customer."
+    "failedToDelete": "Failed to delete customer.",
+    "call": "Call"
   },
   "quotations": {
     "title": "Quotations",

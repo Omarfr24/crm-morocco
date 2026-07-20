@@ -43,14 +43,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       <div className="text-center space-y-2">
-        <Link href="/" className="inline-flex items-center gap-2.5 mb-2">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground text-sm font-bold">
+        <Link href="/" className="inline-flex items-center gap-2.5 mb-3">
+          <span className="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground text-lg font-bold shadow-lg shadow-primary/20">
             Q
           </span>
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="text-3xl font-bold tracking-tight">
           {t("welcomeBack")}
         </h1>
         <p className="text-muted-foreground text-sm">
@@ -58,10 +58,10 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <div className="rounded-xl border bg-card p-6 shadow-xs">
+      <div className="rounded-2xl border bg-card p-6 shadow-xs">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive">
+            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
               {error}
             </div>
           )}

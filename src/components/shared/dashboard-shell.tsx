@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   ChevronLeft,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
@@ -50,13 +51,13 @@ export function DashboardShell({
     { label: t("settings"), href: "/settings", icon: Settings },
   ] as const;
 
-  const BOTTOM_NAV_ITEMS = [
+  const BOTTOM_NAV_ITEMS: readonly { label: string; href: string; icon: typeof LayoutDashboard; isCenter?: boolean }[] = [
     { label: t("dashboard"), href: "/", icon: LayoutDashboard },
     { label: t("customers"), href: "/customers", icon: Users },
-    { label: t("new"), href: "/quotations/new", icon: FileText },
+    { label: t("new"), href: "/quotations/new", icon: FileText, isCenter: true },
     { label: t("invoices"), href: "/invoices", icon: Receipt },
     { label: t("more"), href: "/settings", icon: Settings },
-  ] as const;
+  ];
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
@@ -80,20 +81,20 @@ export function DashboardShell({
       >
         <div
           className={cn(
-            "flex h-14 items-center border-b px-4",
+            "flex h-16 items-center border-b px-4",
             collapsed ? "justify-center" : "justify-between"
           )}
         >
           {!collapsed && (
-            <Link href="/" className="flex items-center gap-2.5 text-base font-semibold tracking-tight">
-              <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">
+            <Link href="/" className="flex items-center gap-3 text-base font-bold tracking-tight">
+              <span className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground text-sm font-bold shadow-sm shadow-primary/20">
                 Q
               </span>
-              <span>QuoteFlow</span>
+              <span className="text-lg">QuoteFlow</span>
             </Link>
           )}
           {collapsed && (
-            <Link href="/" className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">
+            <Link href="/" className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground text-sm font-bold shadow-sm shadow-primary/20">
               Q
             </Link>
           )}
@@ -102,7 +103,7 @@ export function DashboardShell({
               variant="ghost"
               size="icon"
               onClick={() => setCollapsed(true)}
-              className="size-7"
+              className="size-8"
               aria-label={t("collapseSidebar")}
             >
               <ChevronLeft className="size-4" />
@@ -110,7 +111,7 @@ export function DashboardShell({
           )}
         </div>
 
-        <nav className="flex-1 space-y-0.5 p-2">
+        <nav className="flex-1 space-y-1 p-2">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -119,15 +120,15 @@ export function DashboardShell({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                   active
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-primary/10 text-primary shadow-sm"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   collapsed && "justify-center px-0"
                 )}
                 title={collapsed ? item.label : undefined}
               >
-                <Icon className="size-4 shrink-0" />
+                <Icon className="size-[18px] shrink-0" />
                 {!collapsed && item.label}
               </Link>
             );
@@ -137,7 +138,7 @@ export function DashboardShell({
         <div className={cn("border-t p-2", collapsed && "px-2")}>
           {!collapsed ? (
             <>
-              <div className="mb-2 px-2 py-1">
+              <div className="mb-3 px-3 py-2">
                 <p className="text-sm font-medium truncate">{userName}</p>
                 <p className="text-xs text-muted-foreground truncate">
                   {userEmail}
@@ -177,7 +178,7 @@ export function DashboardShell({
 
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -188,9 +189,9 @@ export function DashboardShell({
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex h-14 items-center justify-between border-b px-4">
-          <Link href="/" className="flex items-center gap-2.5 text-base font-semibold tracking-tight" onClick={() => setMobileOpen(false)}>
-            <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">
+        <div className="flex h-16 items-center justify-between border-b px-4">
+          <Link href="/" className="flex items-center gap-3 text-base font-bold tracking-tight" onClick={() => setMobileOpen(false)}>
+            <span className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground text-sm font-bold shadow-sm shadow-primary/20">
               Q
             </span>
             QuoteFlow
@@ -206,7 +207,7 @@ export function DashboardShell({
           </Button>
         </div>
 
-        <nav className="flex-1 space-y-0.5 p-2">
+        <nav className="flex-1 space-y-1 p-2">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -216,13 +217,13 @@ export function DashboardShell({
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200",
                   active
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-primary/10 text-primary shadow-sm"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
-                <Icon className="size-4 shrink-0" />
+                <Icon className="size-[18px] shrink-0" />
                 {item.label}
               </Link>
             );
@@ -230,7 +231,7 @@ export function DashboardShell({
         </nav>
 
         <div className="border-t p-3">
-          <div className="mb-3 px-2">
+          <div className="mb-3 px-3">
             <p className="text-sm font-medium truncate">{userName}</p>
             <p className="text-xs text-muted-foreground truncate">
               {userEmail}
@@ -263,8 +264,8 @@ export function DashboardShell({
           >
             <Menu className="size-5" />
           </Button>
-          <Link href="/" className="flex items-center gap-2 text-sm font-semibold">
-            <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground text-[10px] font-bold">
+          <Link href="/" className="flex items-center gap-2.5 text-sm font-bold">
+            <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground text-[10px] font-bold shadow-sm shadow-primary/20">
               Q
             </span>
             QuoteFlow
@@ -274,15 +275,30 @@ export function DashboardShell({
           </div>
         </header>
 
-        <div className="p-4 sm:p-6 pb-24 lg:pb-6 max-w-6xl mx-auto">
+        <div className="p-4 sm:p-6 pb-28 lg:pb-6 max-w-6xl mx-auto">
           {children}
         </div>
 
         <nav className="fixed bottom-0 left-0 right-0 z-30 border-t bg-card/95 backdrop-blur-md lg:hidden safe-area-bottom">
-          <div className="flex items-center justify-around px-2 py-1">
+          <div className="relative flex items-center justify-around px-2 py-1.5">
             {BOTTOM_NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
+
+              if (item.isCenter) {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="relative -mt-6"
+                  >
+                    <span className="flex size-13 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-all duration-200 active:scale-95 hover:shadow-xl hover:shadow-primary/40">
+                      <Plus className="size-6" />
+                    </span>
+                  </Link>
+                );
+              }
+
               return (
                 <Link
                   key={item.href}

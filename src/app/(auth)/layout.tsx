@@ -5,7 +5,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-md animate-fade-in">
+      <div className="w-full max-w-md">
         {children}
       </div>
     </div>

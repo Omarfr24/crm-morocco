@@ -21,7 +21,7 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
   const { t } = await getTranslations("customers");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <PageHeader
         title={t("title")}
         description={total !== 1 ? t("totalPlural", { count: String(total) }) : t("total", { count: String(total) })}

@@ -21,8 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ChevronDown, Package } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
 type CustomerOption = { id: string; companyName: string };
 
@@ -85,6 +86,17 @@ export function QuotationForm({
     })) : [emptyItem()],
   });
 
+  const [collapsedItems, setCollapsedItems] = useState<Set<number>>(new Set());
+
+  function toggleItemCollapse(idx: number) {
+    setCollapsedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx);
+      else next.add(idx);
+      return next;
+    });
+  }
+
   function updateField<K extends keyof QuotationInput>(key: K, value: QuotationInput[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
     const errKey = key;
@@ -114,7 +126,15 @@ export function QuotationForm({
   }
 
   function addItem() {
-    setForm((prev) => ({ ...prev, items: [...prev.items, emptyItem()] }));
+    setForm((prev) => {
+      const newIdx = prev.items.length;
+      setCollapsedItems((prevSet) => {
+        const next = new Set(prevSet);
+        for (let i = 0; i < newIdx; i++) next.add(i);
+        return next;
+      });
+      return { ...prev, items: [...prev.items, emptyItem()] };
+    });
   }
 
   function removeItem(idx: number) {
@@ -160,7 +180,7 @@ export function QuotationForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {serverError && (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive">
+        <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
           {serverError}
         </div>
       )}
@@ -326,85 +346,115 @@ export function QuotationForm({
         <div className="md:hidden space-y-3">
           {form.items.map((item, idx) => {
             const total = calculateItemTotal(item);
+            const isCollapsed = collapsedItems.has(idx);
             return (
-              <div key={idx} className="rounded-xl border bg-card p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {t("itemNumber", { number: String(idx + 1) })}
-                  </span>
-                  {form.items.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeItem(idx)}
-                      disabled={loading}
-                      className="size-7 text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </Button>
-                  )}
-                </div>
-                <Input
-                  value={item.name}
-                  onChange={(e) => updateItem(idx, "name", e.target.value)}
-                  placeholder={t("itemNamePlaceholder")}
-                  disabled={loading}
-                />
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">{t("itemQty")}</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={item.quantity}
-                      onChange={(e) => updateItem(idx, "quantity", e.target.value)}
-                      disabled={loading}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">{t("unitPrice")}</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={item.unitPrice}
-                      onChange={(e) => updateItem(idx, "unitPrice", e.target.value)}
-                      disabled={loading}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">{t("total")}</span>
-                    <div className="h-10 flex items-center px-3 font-mono text-sm border rounded-lg bg-muted/50">
-                      {total.toFixed(2)}
+              <div key={idx} className="rounded-xl border bg-card overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleItemCollapse(idx)}
+                  className="w-full flex items-center justify-between p-4 text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Package className="size-4" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-medium">
+                        {item.name || t("itemNumber", { number: String(idx + 1) })}
+                      </p>
+                      <p className="text-xs text-muted-foreground font-mono">
+                        {total.toFixed(2)} {currency}
+                      </p>
                     </div>
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">{t("discPercent")}</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      value={item.discount}
-                      onChange={(e) => updateItem(idx, "discount", e.target.value)}
-                      disabled={loading}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">{t("taxPercent")}</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      value={item.tax}
-                      onChange={(e) => updateItem(idx, "tax", e.target.value)}
-                      disabled={loading}
-                    />
+                  <ChevronDown className={cn(
+                    "size-4 text-muted-foreground transition-transform duration-200",
+                    !isCollapsed && "rotate-180"
+                  )} />
+                </button>
+
+                <div className={cn(
+                  "overflow-hidden transition-all duration-300 ease-in-out",
+                  !isCollapsed ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                )}>
+                  <div className="px-4 pb-4 space-y-3 border-t">
+                    <div className="pt-3">
+                      <Input
+                        value={item.name}
+                        onChange={(e) => updateItem(idx, "name", e.target.value)}
+                        placeholder={t("itemNamePlaceholder")}
+                        disabled={loading}
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="space-y-1">
+                        <span className="text-[10px] text-muted-foreground">{t("itemQty")}</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.quantity}
+                          onChange={(e) => updateItem(idx, "quantity", e.target.value)}
+                          disabled={loading}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] text-muted-foreground">{t("unitPrice")}</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.unitPrice}
+                          onChange={(e) => updateItem(idx, "unitPrice", e.target.value)}
+                          disabled={loading}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] text-muted-foreground">{t("total")}</span>
+                        <div className="h-13 flex items-center px-3 font-mono text-sm border rounded-xl bg-muted/50">
+                          {total.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <span className="text-[10px] text-muted-foreground">{t("discPercent")}</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          value={item.discount}
+                          onChange={(e) => updateItem(idx, "discount", e.target.value)}
+                          disabled={loading}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] text-muted-foreground">{t("taxPercent")}</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          value={item.tax}
+                          onChange={(e) => updateItem(idx, "tax", e.target.value)}
+                          disabled={loading}
+                        />
+                      </div>
+                    </div>
+                    {form.items.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeItem(idx)}
+                        disabled={loading}
+                        className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="size-3.5 mr-1.5" />
+                        {tc("delete")}
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>

@@ -25,7 +25,8 @@
     "createOne": "",
     "send": "",
     "sending": "",
-    "all": ""
+    "all": "",
+    "actions": ""
   },
   "navigation": {
     "dashboard": "",
@@ -117,7 +118,8 @@
     "deleteConfirm": "",
     "saveChanges": "",
     "contactLabel": "",
-    "failedToDelete": ""
+    "failedToDelete": "",
+    "call": ""
   },
   "quotations": {
     "title": "",

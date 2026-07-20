@@ -43,12 +43,12 @@ export function SettingsForm({ profile }: { profile: Profile }) {
       <CardContent>
         <form action={formAction} className="space-y-5">
           {state && "error" in state && state.error && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive">
+            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
               {state.error}
             </div>
           )}
           {state && "success" in state && state.success && (
-            <div className="flex items-center gap-2 rounded-lg border border-success/20 bg-success/5 p-3.5 text-sm text-success">
+            <div className="flex items-center gap-2 rounded-xl border border-success/20 bg-success/5 p-4 text-sm text-success">
               <CheckCircle className="size-4" />
               {t("profileSaved")}
             </div>

@@ -9,7 +9,7 @@ export default async function SettingsPage() {
   const profile = result.success ? result.data : null;
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-2xl animate-fade-in">
       <PageHeader title={t("title")} description={t("description")} />
       <SettingsForm profile={profile} />
     </div>

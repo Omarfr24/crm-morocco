@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslations } from "next-intl";
+import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CustomerFormProps {
   defaultValues?: Partial<CustomerInput>;
@@ -22,6 +24,7 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [form, setForm] = useState<CustomerInput>({
     companyName: defaultValues?.companyName ?? "",
@@ -32,6 +35,8 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
     address: defaultValues?.address ?? "",
     notes: defaultValues?.notes ?? "",
   });
+
+  const hasAdvancedData = !!(defaultValues?.address || defaultValues?.notes);
 
   function updateField<K extends keyof CustomerInput>(key: K, value: CustomerInput[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -77,66 +82,70 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {serverError && (
-        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
           {serverError}
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="companyName">{t("companyName")}</Label>
-          <Input
-            id="companyName"
-            value={form.companyName}
-            onChange={(e) => updateField("companyName", e.target.value)}
-            placeholder={t("companyNamePlaceholder")}
-            disabled={loading}
-          />
-          {fieldErrors.companyName && (
-            <p className="text-sm text-destructive">{fieldErrors.companyName}</p>
-          )}
+      <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="companyName">{t("companyName")} *</Label>
+            <Input
+              id="companyName"
+              value={form.companyName}
+              onChange={(e) => updateField("companyName", e.target.value)}
+              placeholder={t("companyNamePlaceholder")}
+              disabled={loading}
+            />
+            {fieldErrors.companyName && (
+              <p className="text-sm text-destructive">{fieldErrors.companyName}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="contactPerson">{t("contactPersonLabel")}</Label>
+            <Input
+              id="contactPerson"
+              value={form.contactPerson}
+              onChange={(e) => updateField("contactPerson", e.target.value)}
+              placeholder={t("contactPersonPlaceholder")}
+              disabled={loading}
+            />
+            {fieldErrors.contactPerson && (
+              <p className="text-sm text-destructive">{fieldErrors.contactPerson}</p>
+            )}
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="contactPerson">{t("contactPersonLabel")}</Label>
-          <Input
-            id="contactPerson"
-            value={form.contactPerson}
-            onChange={(e) => updateField("contactPerson", e.target.value)}
-            placeholder={t("contactPersonPlaceholder")}
-            disabled={loading}
-          />
-          {fieldErrors.contactPerson && (
-            <p className="text-sm text-destructive">{fieldErrors.contactPerson}</p>
-          )}
-        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="phone">{t("phoneLabel")}</Label>
+            <Input
+              id="phone"
+              value={form.phone}
+              onChange={(e) => updateField("phone", e.target.value)}
+              placeholder={t("phonePlaceholder")}
+              disabled={loading}
+            />
+            {fieldErrors.phone && (
+              <p className="text-sm text-destructive">{fieldErrors.phone}</p>
+            )}
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="phone">{t("phoneLabel")}</Label>
-          <Input
-            id="phone"
-            value={form.phone}
-            onChange={(e) => updateField("phone", e.target.value)}
-            placeholder={t("phonePlaceholder")}
-            disabled={loading}
-          />
-          {fieldErrors.phone && (
-            <p className="text-sm text-destructive">{fieldErrors.phone}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="whatsapp">{t("whatsappLabel")}</Label>
-          <Input
-            id="whatsapp"
-            value={form.whatsapp}
-            onChange={(e) => updateField("whatsapp", e.target.value)}
-            placeholder={t("whatsappPlaceholder")}
-            disabled={loading}
-          />
-          {fieldErrors.whatsapp && (
-            <p className="text-sm text-destructive">{fieldErrors.whatsapp}</p>
-          )}
+          <div className="space-y-2">
+            <Label htmlFor="whatsapp">{t("whatsappLabel")}</Label>
+            <Input
+              id="whatsapp"
+              value={form.whatsapp}
+              onChange={(e) => updateField("whatsapp", e.target.value)}
+              placeholder={t("whatsappPlaceholder")}
+              disabled={loading}
+            />
+            {fieldErrors.whatsapp && (
+              <p className="text-sm text-destructive">{fieldErrors.whatsapp}</p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -155,34 +164,52 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="address">{t("addressLabel")}</Label>
-        <Textarea
-          id="address"
-          value={form.address}
-          onChange={(e) => updateField("address", e.target.value)}
-          placeholder={t("addressPlaceholder")}
-          disabled={loading}
-          rows={2}
-        />
-        {fieldErrors.address && (
-          <p className="text-sm text-destructive">{fieldErrors.address}</p>
-        )}
-      </div>
+      <div>
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronDown className={cn("size-4 transition-transform duration-200", showAdvanced && "rotate-180")} />
+          {t("advancedInformation") || "Advanced Information"}
+        </button>
 
-      <div className="space-y-2">
-        <Label htmlFor="notes">{t("notesLabel")}</Label>
-        <Textarea
-          id="notes"
-          value={form.notes}
-          onChange={(e) => updateField("notes", e.target.value)}
-          placeholder={t("notesPlaceholder")}
-          disabled={loading}
-          rows={3}
-        />
-        {fieldErrors.notes && (
-          <p className="text-sm text-destructive">{fieldErrors.notes}</p>
-        )}
+        <div className={cn(
+          "overflow-hidden transition-all duration-300 ease-in-out",
+          (showAdvanced || hasAdvancedData) ? "max-h-96 opacity-100 mt-4" : "max-h-0 opacity-0"
+        )}>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="address">{t("addressLabel")}</Label>
+              <Textarea
+                id="address"
+                value={form.address}
+                onChange={(e) => updateField("address", e.target.value)}
+                placeholder={t("addressPlaceholder")}
+                disabled={loading}
+                rows={2}
+              />
+              {fieldErrors.address && (
+                <p className="text-sm text-destructive">{fieldErrors.address}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">{t("notesLabel")}</Label>
+              <Textarea
+                id="notes"
+                value={form.notes}
+                onChange={(e) => updateField("notes", e.target.value)}
+                placeholder={t("notesPlaceholder")}
+                disabled={loading}
+                rows={3}
+              />
+              {fieldErrors.notes && (
+                <p className="text-sm text-destructive">{fieldErrors.notes}</p>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row">

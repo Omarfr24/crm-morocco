@@ -25,7 +25,8 @@
     "createOne": "Créer un élément",
     "send": "Envoyer",
     "sending": "Envoi…",
-    "all": "Tous"
+    "all": "Tous",
+    "actions": "Actions"
   },
   "navigation": {
     "dashboard": "Tableau de bord",
@@ -114,10 +115,11 @@
     "notesLabel": "Notes",
     "notesPlaceholder": "Notes internes sur ce client…",
     "deleteCustomer": "Supprimer le client",
-    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer <strong>{name}</strong> ? Cette action est irréversible.",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer {name} ? Cette action est irréversible.",
     "saveChanges": "Enregistrer les modifications",
     "contactLabel": "Contact : {name}",
-    "failedToDelete": "Échec de la suppression du client."
+    "failedToDelete": "Échec de la suppression du client.",
+    "call": "Appeler"
   },
   "quotations": {
     "title": "Devis",

@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/shared/status-badge";
-import { Search, FileText, Users, Receipt } from "lucide-react";
+import { Search, FileText, Users, Receipt, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 type SearchData = {
@@ -31,32 +31,48 @@ export function SearchResults({ initialData }: { initialData: SearchData }) {
     });
   }
 
+  function clearSearch() {
+    setInputValue("");
+    startTransition(() => {
+      router.push("/search");
+    });
+  }
+
   const { customers, quotations, invoices } = initialData;
   const hasResults = customers.length > 0 || quotations.length > 0 || invoices.length > 0;
   const q = searchParams.get("q") ?? "";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("title")}</h1>
-        <p className="text-muted-foreground text-sm">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-[2.25rem]">{t("title")}</h1>
+        <p className="text-muted-foreground text-sm mt-1">
           {t("subtitle")}
         </p>
       </div>
 
       <form onSubmit={handleSearch} className="relative max-w-lg">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
         <Input
           placeholder={t("placeholder")}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          className="pl-9"
+          className="pl-10 pr-10"
         />
+        {inputValue && (
+          <button
+            type="button"
+            onClick={clearSearch}
+            className="absolute right-3 top-1/2 -translate-y-1/2 size-5 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <X className="size-3.5" />
+          </button>
+        )}
       </form>
 
       {q && !hasResults && (
-        <div className="rounded-xl border bg-card p-8 text-center">
-          <Search className="size-10 text-muted-foreground/30 mx-auto mb-3" />
+        <div className="rounded-2xl border bg-card p-12 text-center">
+          <Search className="size-14 text-muted-foreground/15 mx-auto mb-4" />
           <p className="text-sm text-muted-foreground">{t("noResults", { query: q })}</p>
         </div>
       )}
@@ -67,7 +83,7 @@ export function SearchResults({ initialData }: { initialData: SearchData }) {
             <Link
               key={c.id}
               href={`/customers/${c.id}`}
-              className="flex items-center justify-between rounded-xl border bg-card p-3.5 text-sm hover:shadow-xs transition-all"
+              className="flex items-center justify-between rounded-2xl border bg-card p-4 text-sm hover:shadow-md transition-all duration-200"
             >
               <div className="min-w-0">
                 <span className="font-medium">{c.companyName}</span>
@@ -89,7 +105,7 @@ export function SearchResults({ initialData }: { initialData: SearchData }) {
             <Link
               key={qt.id}
               href={`/quotations/${qt.id}`}
-              className="flex items-center justify-between rounded-xl border bg-card p-3.5 text-sm hover:shadow-xs transition-all"
+              className="flex items-center justify-between rounded-2xl border bg-card p-4 text-sm hover:shadow-md transition-all duration-200"
             >
               <div className="min-w-0">
                 <span className="font-mono font-medium text-xs">{qt.quoteNumber}</span>
@@ -109,7 +125,7 @@ export function SearchResults({ initialData }: { initialData: SearchData }) {
             <Link
               key={inv.id}
               href={`/invoices/${inv.id}`}
-              className="flex items-center justify-between rounded-xl border bg-card p-3.5 text-sm hover:shadow-xs transition-all"
+              className="flex items-center justify-between rounded-2xl border bg-card p-4 text-sm hover:shadow-md transition-all duration-200"
             >
               <div className="min-w-0">
                 <span className="font-mono font-medium text-xs">
@@ -141,12 +157,12 @@ function Section({
 }) {
   return (
     <div>
-      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
+      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
         {icon}
         {title}
         <span className="text-xs font-normal text-muted-foreground/60">({count})</span>
       </h2>
-      <div className="space-y-1.5">{children}</div>
+      <div className="space-y-2">{children}</div>
     </div>
   );
 }

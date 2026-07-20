@@ -25,7 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 type Invoice = {
   id: string;
@@ -103,6 +104,7 @@ export function InvoiceDetail({
   });
 
   const remaining = invoice.totalAmount - invoice.paidAmount;
+  const paymentProgress = invoice.totalAmount > 0 ? (invoice.paidAmount / invoice.totalAmount) * 100 : 0;
 
   function updateField<K extends keyof PaymentInput>(key: K, value: PaymentInput[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -156,19 +158,60 @@ export function InvoiceDetail({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <StatusBadge status={invoice.status} />
-        {remaining > 0 && (
-          <Button size="sm" onClick={() => setShowPaymentDialog(true)} className="inline-flex items-center gap-1.5">
-            <Plus className="size-3.5" />
-            {t("recordPayment")}
-          </Button>
-        )}
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center gap-3">
+        <Link href="/invoices" className="size-9 inline-flex items-center justify-center rounded-xl border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+          <ArrowLeft className="size-4" />
+        </Link>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="text-xl font-bold truncate">
+              {invoice.quotation.quoteNumber.replace("QT-", "INV-")}
+            </h2>
+            <StatusBadge status={invoice.status} />
+          </div>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {invoice.quotation.customer.companyName}
+          </p>
+        </div>
+      </div>
+
+      {remaining > 0 && (
+        <Button size="sm" onClick={() => setShowPaymentDialog(true)} className="inline-flex items-center gap-1.5">
+          <Plus className="size-3.5" />
+          {t("recordPayment")}
+        </Button>
+      )}
+
+      <div className="rounded-2xl border bg-card p-5 space-y-4">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">{t("totalLabel")}</span>
+          <span className="text-2xl font-bold">{invoice.totalAmount.toFixed(2)} <span className="text-sm font-medium text-muted-foreground">{currency}</span></span>
+        </div>
+        <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+          <div
+            className="h-full rounded-full bg-success transition-all duration-500"
+            style={{ width: `${Math.min(paymentProgress, 100)}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-4">
+            <span>
+              <span className="text-muted-foreground">{t("paidLabel")} </span>
+              <span className="font-medium text-success">{invoice.paidAmount.toFixed(2)} {currency}</span>
+            </span>
+            <span>
+              <span className="text-muted-foreground">{t("remaining") || "Remaining"} </span>
+              <span className={`font-medium ${remaining > 0 ? "text-destructive" : "text-success"}`}>
+                {remaining.toFixed(2)} {currency}
+              </span>
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
-        <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
+        <div className="rounded-2xl border bg-card p-5 space-y-4 text-sm">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("customer")}</h3>
           <InfoRow label={t("company")} value={invoice.quotation.customer.companyName} />
           <InfoRow label={t("contact")} value={invoice.quotation.customer.contactPerson} />
@@ -178,44 +221,25 @@ export function InvoiceDetail({
             <InfoRow label={t("address")} value={invoice.quotation.customer.address} />
           )}
         </div>
-        <div className="space-y-4">
-          <div className="rounded-xl border bg-card p-4 space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{t("totalLabel")}</span>
-              <span className="font-bold">{invoice.totalAmount.toFixed(2)} {currency}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{t("paidLabel")}</span>
-              <span className="font-medium text-success">{invoice.paidAmount.toFixed(2)} {currency}</span>
-            </div>
-            <Separator />
-            <div className="flex justify-between text-sm font-bold">
-              <span>{t("remaining")}</span>
-              <span className={remaining > 0 ? "text-destructive" : "text-success"}>
-                {remaining.toFixed(2)} {currency}
-              </span>
-            </div>
-          </div>
-          <div className="rounded-xl border bg-card p-4 space-y-1 text-sm">
-            <InfoRow label={t("quote")} value={invoice.quotation.quoteNumber} />
-            <InfoRow
-              label={t("created")}
-              value={new Date(invoice.createdAt).toLocaleDateString("en-GB", {
-                day: "2-digit", month: "long", year: "numeric",
-              })}
-            />
-          </div>
+        <div className="rounded-2xl border bg-card p-5 space-y-4 text-sm">
+          <InfoRow label={t("quote")} value={invoice.quotation.quoteNumber} />
+          <InfoRow
+            label={t("created")}
+            value={new Date(invoice.createdAt).toLocaleDateString("en-GB", {
+              day: "2-digit", month: "long", year: "numeric",
+            })}
+          />
         </div>
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-base font-semibold">{t("paymentHistory")}</h3>
+        <h3 className="text-lg font-semibold">{t("paymentHistory")}</h3>
         {payments.length === 0 ? (
-          <div className="rounded-xl border bg-card p-8 text-center">
+          <div className="rounded-2xl border bg-card p-10 text-center">
             <p className="text-sm text-muted-foreground">{t("noPayments")}</p>
           </div>
         ) : (
-          <div className="hidden md:block rounded-xl border overflow-hidden">
+          <div className="hidden md:block rounded-2xl border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
@@ -263,7 +287,7 @@ export function InvoiceDetail({
         {payments.length > 0 && (
           <div className="md:hidden space-y-2">
             {payments.map((p) => (
-              <div key={p.id} className="rounded-xl border bg-card p-4 flex items-center justify-between">
+              <div key={p.id} className="rounded-2xl border bg-card p-4 flex items-center justify-between">
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
                     {p.amount.toFixed(2)} {currency}
@@ -299,7 +323,7 @@ export function InvoiceDetail({
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3.5 text-sm text-destructive">
+              <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
                 {error}
               </div>
             )}
@@ -385,7 +409,7 @@ function InfoRow({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex flex-col gap-0.5">
       <span className="text-xs text-muted-foreground">{label}</span>
-      <span>{value || "—"}</span>
+      <span className="break-words">{value || "—"}</span>
     </div>
   );
 }
