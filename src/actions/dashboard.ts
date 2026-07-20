@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { headers } from "next/headers";
+import { getTranslations } from "@/i18n/request";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
@@ -38,6 +39,7 @@ export async function getDashboardStats(): Promise<
     }[];
   }>
 > {
+  const { t } = await getTranslations("errors");
   try {
     await requireAuth();
 
@@ -93,7 +95,7 @@ export async function getDashboardStats(): Promise<
     log("error", "Failed to fetch dashboard stats", {
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to load dashboard." };
+    return { success: false, error: t("failedToLoadDashboard") };
   }
 }
 
@@ -104,6 +106,7 @@ export async function globalSearch(query: string): Promise<
     invoices: { id: string; status: string; quotation: { quoteNumber: string; customer: { companyName: string } } }[];
   }>
 > {
+  const { t } = await getTranslations("errors");
   try {
     await requireAuth();
 
@@ -189,6 +192,6 @@ export async function globalSearch(query: string): Promise<
       query,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Search failed." };
+    return { success: false, error: t("searchFailed") };
   }
 }

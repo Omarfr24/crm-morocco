@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type Customer = {
   id: string;
@@ -41,6 +42,8 @@ export function CustomerTable({
 }: CustomerTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("customers");
+  const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [searchInput, setSearchInput] = useState(search);
 
@@ -73,7 +76,7 @@ export function CustomerTable({
       <form onSubmit={handleSearch} className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
         <Input
-          placeholder="Search by company, contact, email..."
+          placeholder={t("searchPlaceholder")}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           className="pl-9"
@@ -84,11 +87,11 @@ export function CustomerTable({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>Company</TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead className="w-[100px]">Created</TableHead>
+              <TableHead>{t("company")}</TableHead>
+              <TableHead>{t("contact")}</TableHead>
+              <TableHead>{t("phone")}</TableHead>
+              <TableHead>{t("email")}</TableHead>
+              <TableHead className="w-[100px]">{t("created")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -96,12 +99,12 @@ export function CustomerTable({
               <TableRow>
                 <TableCell colSpan={5} className="h-32 text-center">
                   <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <p className="text-sm">No customers found.</p>
+                    <p className="text-sm">{t("noCustomers")}</p>
                     <Link
                       href="/customers/new"
                       className="text-sm text-primary hover:underline"
                     >
-                      Create one
+                      {tc("createOne")}
                     </Link>
                   </div>
                 </TableCell>
@@ -136,12 +139,12 @@ export function CustomerTable({
       <div className="md:hidden space-y-2">
         {items.length === 0 ? (
           <div className="rounded-xl border bg-card p-8 text-center">
-            <p className="text-sm text-muted-foreground mb-2">No customers found.</p>
+            <p className="text-sm text-muted-foreground mb-2">{t("noCustomers")}</p>
             <Link
               href="/customers/new"
               className="text-sm text-primary hover:underline"
             >
-              Create one
+              {tc("createOne")}
             </Link>
           </div>
         ) : (
@@ -173,7 +176,7 @@ export function CustomerTable({
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Page {page} of {totalPages}
+            {tc("pageXofY", { page: String(page), totalPages: String(totalPages) })}
           </p>
           <div className="flex gap-2">
             <Button
@@ -184,7 +187,7 @@ export function CustomerTable({
               className="inline-flex items-center gap-1"
             >
               <ChevronLeft className="size-3.5" />
-              Previous
+              {tc("previous")}
             </Button>
             <Button
               variant="outline"
@@ -193,7 +196,7 @@ export function CustomerTable({
               onClick={() => goToPage(page + 1)}
               className="inline-flex items-center gap-1"
             >
-              Next
+              {tc("next")}
               <ChevronRight className="size-3.5" />
             </Button>
           </div>

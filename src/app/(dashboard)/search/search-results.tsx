@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Search, FileText, Users, Receipt } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type SearchData = {
   customers: { id: string; companyName: string; contactPerson: string | null; email: string | null }[];
@@ -16,6 +17,7 @@ type SearchData = {
 export function SearchResults({ initialData }: { initialData: SearchData }) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const t = useTranslations("search");
   const [pending, startTransition] = useTransition();
 
   const [inputValue, setInputValue] = useState(searchParams.get("q") ?? "");
@@ -36,16 +38,16 @@ export function SearchResults({ initialData }: { initialData: SearchData }) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Search</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("title")}</h1>
         <p className="text-muted-foreground text-sm">
-          Search across customers, quotations, and invoices
+          {t("subtitle")}
         </p>
       </div>
 
       <form onSubmit={handleSearch} className="relative max-w-lg">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
         <Input
-          placeholder="Search by name, company, quote number..."
+          placeholder={t("placeholder")}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           className="pl-9"
@@ -55,12 +57,12 @@ export function SearchResults({ initialData }: { initialData: SearchData }) {
       {q && !hasResults && (
         <div className="rounded-xl border bg-card p-8 text-center">
           <Search className="size-10 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">No results found for &ldquo;{q}&rdquo;</p>
+          <p className="text-sm text-muted-foreground">{t("noResults", { query: q })}</p>
         </div>
       )}
 
       {customers.length > 0 && (
-        <Section title="Customers" icon={<Users className="size-4" />} count={customers.length}>
+        <Section title={t("customers")} icon={<Users className="size-4" />} count={customers.length}>
           {customers.map((c) => (
             <Link
               key={c.id}
@@ -82,7 +84,7 @@ export function SearchResults({ initialData }: { initialData: SearchData }) {
       )}
 
       {quotations.length > 0 && (
-        <Section title="Quotations" icon={<FileText className="size-4" />} count={quotations.length}>
+        <Section title={t("quotations")} icon={<FileText className="size-4" />} count={quotations.length}>
           {quotations.map((qt) => (
             <Link
               key={qt.id}
@@ -102,7 +104,7 @@ export function SearchResults({ initialData }: { initialData: SearchData }) {
       )}
 
       {invoices.length > 0 && (
-        <Section title="Invoices" icon={<Receipt className="size-4" />} count={invoices.length}>
+        <Section title={t("invoices")} icon={<Receipt className="size-4" />} count={invoices.length}>
           {invoices.map((inv) => (
             <Link
               key={inv.id}

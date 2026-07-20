@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import {
   Table,
@@ -35,15 +36,7 @@ interface QuotationTableProps {
   statusFilter: string;
 }
 
-const STATUS_OPTIONS = [
-  { value: "", label: "All Statuses" },
-  { value: "DRAFT", label: "Draft" },
-  { value: "SENT", label: "Sent" },
-  { value: "PENDING", label: "Pending" },
-  { value: "ACCEPTED", label: "Accepted" },
-  { value: "REJECTED", label: "Rejected" },
-  { value: "EXPIRED", label: "Expired" },
-];
+
 
 export function QuotationTable({
   items,
@@ -55,8 +48,20 @@ export function QuotationTable({
 }: QuotationTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("quotations");
+  const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [searchInput, setSearchInput] = useState(search);
+
+  const STATUS_OPTIONS = [
+    { value: "", label: tc("all") },
+    { value: "DRAFT", label: t("statusDraft") },
+    { value: "SENT", label: t("statusSent") },
+    { value: "PENDING", label: t("statusPending") },
+    { value: "ACCEPTED", label: t("statusAccepted") },
+    { value: "REJECTED", label: t("statusRejected") },
+    { value: "EXPIRED", label: t("statusExpired") },
+  ];
 
   const totalPages = Math.ceil(total / pageSize);
 
@@ -101,7 +106,7 @@ export function QuotationTable({
         <form onSubmit={handleSearch} className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <Input
-            placeholder="Search by quote # or customer..."
+            placeholder={t("searchPlaceholder")}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="pl-9"
@@ -131,10 +136,10 @@ export function QuotationTable({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>Quote #</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t("quoteNumber")}</TableHead>
+              <TableHead>{t("customer")}</TableHead>
+              <TableHead>{t("date")}</TableHead>
+              <TableHead>{t("status")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -142,12 +147,12 @@ export function QuotationTable({
               <TableRow>
                 <TableCell colSpan={4} className="h-32 text-center">
                   <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <p className="text-sm">No quotations found.</p>
+                    <p className="text-sm">{t("noQuotations")}</p>
                     <Link
                       href="/quotations/new"
                       className="text-sm text-primary hover:underline"
                     >
-                      Create one
+                      {tc("createOne")}
                     </Link>
                   </div>
                 </TableCell>
@@ -181,14 +186,14 @@ export function QuotationTable({
       </div>
 
       <div className="md:hidden space-y-2">
-        {items.length === 0 ? (
+          {items.length === 0 ? (
           <div className="rounded-xl border bg-card p-8 text-center">
-            <p className="text-sm text-muted-foreground mb-2">No quotations found.</p>
+            <p className="text-sm text-muted-foreground mb-2">{t("noQuotations")}</p>
             <Link
               href="/quotations/new"
               className="text-sm text-primary hover:underline"
             >
-              Create one
+              {tc("createOne")}
             </Link>
           </div>
         ) : (
@@ -222,7 +227,7 @@ export function QuotationTable({
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Page {page} of {totalPages}
+            {tc("pageXofY", { page: String(page), totalPages: String(totalPages) })}
           </p>
           <div className="flex gap-2">
             <Button
@@ -233,7 +238,7 @@ export function QuotationTable({
               className="inline-flex items-center gap-1"
             >
               <ChevronLeft className="size-3.5" />
-              Previous
+              {tc("previous")}
             </Button>
             <Button
               variant="outline"
@@ -242,7 +247,7 @@ export function QuotationTable({
               onClick={() => goToPage(page + 1)}
               className="inline-flex items-center gap-1"
             >
-              Next
+              {tc("next")}
               <ChevronRight className="size-3.5" />
             </Button>
           </div>

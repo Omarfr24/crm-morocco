@@ -1,12 +1,14 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { InvoiceTable } from "./invoice-table";
 import { getInvoices } from "@/actions/invoices";
+import { getTranslations } from "@/i18n/request";
 
 interface InvoicesPageProps {
   searchParams: Promise<{ q?: string; status?: string; page?: string }>;
 }
 
 export default async function InvoicesPage({ searchParams }: InvoicesPageProps) {
+  const { t } = await getTranslations("invoices");
   const params = await searchParams;
   const search = params.q ?? "";
   const status = params.status ?? "";
@@ -27,8 +29,8 @@ export default async function InvoicesPage({ searchParams }: InvoicesPageProps) 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Invoices"
-        description={`${total} invoice${total !== 1 ? "s" : ""} total`}
+        title={t("title")}
+        description={total !== 1 ? t("totalPlural", { count: String(total) }) : t("total", { count: String(total) })}
       />
       <InvoiceTable
         items={items}

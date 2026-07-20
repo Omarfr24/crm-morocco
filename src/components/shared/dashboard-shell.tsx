@@ -17,26 +17,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-
-const NAV_ITEMS = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Customers", href: "/customers", icon: Users },
-  { label: "Quotations", href: "/quotations", icon: FileText },
-  { label: "Invoices", href: "/invoices", icon: Receipt },
-  { label: "Search", href: "/search", icon: Search },
-  { label: "Settings", href: "/settings", icon: Settings },
-] as const;
-
-const BOTTOM_NAV_ITEMS = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Customers", href: "/customers", icon: Users },
-  { label: "New", href: "/quotations/new", icon: FileText },
-  { label: "Invoices", href: "/invoices", icon: Receipt },
-  { label: "More", href: "/settings", icon: Settings },
-] as const;
+import { useTranslations } from "next-intl";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -51,8 +36,27 @@ export function DashboardShell({
 }: DashboardShellProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const t = useTranslations("navigation");
+  const tc = useTranslations("common");
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const NAV_ITEMS = [
+    { label: t("dashboard"), href: "/", icon: LayoutDashboard },
+    { label: t("customers"), href: "/customers", icon: Users },
+    { label: t("quotations"), href: "/quotations", icon: FileText },
+    { label: t("invoices"), href: "/invoices", icon: Receipt },
+    { label: t("search"), href: "/search", icon: Search },
+    { label: t("settings"), href: "/settings", icon: Settings },
+  ] as const;
+
+  const BOTTOM_NAV_ITEMS = [
+    { label: t("dashboard"), href: "/", icon: LayoutDashboard },
+    { label: t("customers"), href: "/customers", icon: Users },
+    { label: t("new"), href: "/quotations/new", icon: FileText },
+    { label: t("invoices"), href: "/invoices", icon: Receipt },
+    { label: t("more"), href: "/settings", icon: Settings },
+  ] as const;
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
@@ -99,7 +103,7 @@ export function DashboardShell({
               size="icon"
               onClick={() => setCollapsed(true)}
               className="size-7"
-              aria-label="Collapse sidebar"
+              aria-label={t("collapseSidebar")}
             >
               <ChevronLeft className="size-4" />
             </Button>
@@ -141,6 +145,7 @@ export function DashboardShell({
               </div>
               <div className="flex items-center gap-1">
                 <ThemeToggle className="size-8" />
+                <LanguageSwitcher className="size-8" compact />
                 <Button
                   variant="ghost"
                   size="sm"
@@ -148,19 +153,20 @@ export function DashboardShell({
                   onClick={handleSignOut}
                 >
                   <LogOut className="size-4" />
-                  Sign Out
+                  {t("signOut")}
                 </Button>
               </div>
             </>
           ) : (
             <div className="flex flex-col items-center gap-1">
               <ThemeToggle className="size-8" />
+              <LanguageSwitcher className="size-8" compact />
               <Button
                 variant="ghost"
                 size="icon"
                 className="size-8"
                 onClick={handleSignOut}
-                aria-label="Sign out"
+                aria-label={t("signOutLabel")}
               >
                 <LogOut className="size-4" />
               </Button>
@@ -194,7 +200,7 @@ export function DashboardShell({
             size="icon"
             onClick={() => setMobileOpen(false)}
             className="size-8"
-            aria-label="Close menu"
+            aria-label={t("closeMenu")}
           >
             <X className="size-4" />
           </Button>
@@ -232,6 +238,7 @@ export function DashboardShell({
           </div>
           <div className="flex items-center gap-1">
             <ThemeToggle className="size-8" />
+            <LanguageSwitcher className="size-8" compact />
             <Button
               variant="ghost"
               size="sm"
@@ -239,7 +246,7 @@ export function DashboardShell({
               onClick={handleSignOut}
             >
               <LogOut className="size-4" />
-              Sign Out
+              {t("signOut")}
             </Button>
           </div>
         </div>
@@ -252,7 +259,7 @@ export function DashboardShell({
             size="icon"
             onClick={() => setMobileOpen(true)}
             className="size-9"
-            aria-label="Open menu"
+            aria-label={t("openMenu")}
           >
             <Menu className="size-5" />
           </Button>
@@ -262,6 +269,9 @@ export function DashboardShell({
             </span>
             QuoteFlow
           </Link>
+          <div className="ml-auto">
+            <LanguageSwitcher className="size-8" compact />
+          </div>
         </header>
 
         <div className="p-4 sm:p-6 pb-24 lg:pb-6 max-w-6xl mx-auto">

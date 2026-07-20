@@ -1,12 +1,14 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { QuotationTable } from "./quotation-table";
 import { getQuotations } from "@/actions/quotations";
+import { getTranslations } from "@/i18n/request";
 
 interface QuotationsPageProps {
   searchParams: Promise<{ q?: string; status?: string; page?: string }>;
 }
 
 export default async function QuotationsPage({ searchParams }: QuotationsPageProps) {
+  const { t } = await getTranslations("quotations");
   const params = await searchParams;
   const search = params.q ?? "";
   const status = params.status ?? "";
@@ -21,9 +23,9 @@ export default async function QuotationsPage({ searchParams }: QuotationsPagePro
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Quotations"
-        description={`${total} quotation${total !== 1 ? "s" : ""} total`}
-        action={{ label: "New Quotation", href: "/quotations/new" }}
+        title={t("title")}
+        description={total !== 1 ? t("totalPlural", { count: String(total) }) : t("total", { count: String(total) })}
+        action={{ label: t("newQuotation"), href: "/quotations/new" }}
       />
       <QuotationTable
         items={items}

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function CustomersError({
   error,
@@ -11,6 +12,9 @@ export default function CustomersError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("errors");
+  const tc = useTranslations("common");
+
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -21,12 +25,12 @@ export default function CustomersError({
         <AlertTriangle className="size-6" />
       </span>
       <div className="text-center">
-        <h2 className="text-lg font-semibold">Failed to load customers</h2>
+        <h2 className="text-lg font-semibold">{t("failedToLoadCustomers")}</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          An unexpected error occurred. Please try again.
+          {tc("unexpectedError")}
         </p>
       </div>
-      <Button onClick={reset}>Try again</Button>
+      <Button onClick={reset}>{tc("tryAgain")}</Button>
     </div>
   );
 }

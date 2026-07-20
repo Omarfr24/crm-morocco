@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "@/i18n/request";
 import { PageHeader } from "@/components/shared/page-header";
 import { QuotationForm } from "@/components/shared/quotation-form";
 import { createQuotation } from "@/actions/quotations";
@@ -6,6 +7,7 @@ import { getCustomers } from "@/actions/customers";
 import type { QuotationInput } from "@/schemas/quotation";
 
 export default async function NewQuotationPage() {
+  const { t } = await getTranslations("quotations");
   const result = await getCustomers({ pageSize: 200 });
 
   if (!result.success) {
@@ -25,13 +27,13 @@ export default async function NewQuotationPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="New Quotation"
-        description="Create a new quotation for a customer"
+        title={t("newQuotation")}
+        description={t("newQuotationDescription")}
       />
       <QuotationForm
         customers={customers}
         onSubmit={handleSubmit}
-        submitLabel="Create Quotation"
+        submitLabel={t("createQuotation")}
       />
     </div>
   );

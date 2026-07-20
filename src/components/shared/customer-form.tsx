@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslations } from "next-intl";
 
 interface CustomerFormProps {
   defaultValues?: Partial<CustomerInput>;
@@ -16,6 +17,8 @@ interface CustomerFormProps {
 
 export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerFormProps) {
   const router = useRouter();
+  const t = useTranslations("customers");
+  const tc = useTranslations("common");
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -61,7 +64,7 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
     const result = await onSubmit(parsed.data);
 
     if (!result.success) {
-      setServerError(result.error ?? "An unexpected error occurred.");
+      setServerError(result.error ?? tc("unexpectedError"));
       if (result.fieldErrors) setFieldErrors(result.fieldErrors);
       setLoading(false);
       return;
@@ -81,12 +84,12 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="companyName">Company Name *</Label>
+          <Label htmlFor="companyName">{t("companyName")}</Label>
           <Input
             id="companyName"
             value={form.companyName}
             onChange={(e) => updateField("companyName", e.target.value)}
-            placeholder="Acme Corp"
+            placeholder={t("companyNamePlaceholder")}
             disabled={loading}
           />
           {fieldErrors.companyName && (
@@ -95,12 +98,12 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="contactPerson">Contact Person</Label>
+          <Label htmlFor="contactPerson">{t("contactPersonLabel")}</Label>
           <Input
             id="contactPerson"
             value={form.contactPerson}
             onChange={(e) => updateField("contactPerson", e.target.value)}
-            placeholder="John Doe"
+            placeholder={t("contactPersonPlaceholder")}
             disabled={loading}
           />
           {fieldErrors.contactPerson && (
@@ -109,12 +112,12 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
+          <Label htmlFor="phone">{t("phoneLabel")}</Label>
           <Input
             id="phone"
             value={form.phone}
             onChange={(e) => updateField("phone", e.target.value)}
-            placeholder="+212 600 000 000"
+            placeholder={t("phonePlaceholder")}
             disabled={loading}
           />
           {fieldErrors.phone && (
@@ -123,12 +126,12 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="whatsapp">WhatsApp</Label>
+          <Label htmlFor="whatsapp">{t("whatsappLabel")}</Label>
           <Input
             id="whatsapp"
             value={form.whatsapp}
             onChange={(e) => updateField("whatsapp", e.target.value)}
-            placeholder="+212 600 000 000"
+            placeholder={t("whatsappPlaceholder")}
             disabled={loading}
           />
           {fieldErrors.whatsapp && (
@@ -137,13 +140,13 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("emailLabel")}</Label>
           <Input
             id="email"
             type="email"
             value={form.email}
             onChange={(e) => updateField("email", e.target.value)}
-            placeholder="contact@company.com"
+            placeholder={t("emailPlaceholder")}
             disabled={loading}
           />
           {fieldErrors.email && (
@@ -153,12 +156,12 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="address">Address</Label>
+        <Label htmlFor="address">{t("addressLabel")}</Label>
         <Textarea
           id="address"
           value={form.address}
           onChange={(e) => updateField("address", e.target.value)}
-          placeholder="123 Main St, Casablanca, Morocco"
+          placeholder={t("addressPlaceholder")}
           disabled={loading}
           rows={2}
         />
@@ -168,12 +171,12 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">Notes</Label>
+        <Label htmlFor="notes">{t("notesLabel")}</Label>
         <Textarea
           id="notes"
           value={form.notes}
           onChange={(e) => updateField("notes", e.target.value)}
-          placeholder="Internal notes about this customer..."
+          placeholder={t("notesPlaceholder")}
           disabled={loading}
           rows={3}
         />
@@ -190,10 +193,10 @@ export function CustomerForm({ defaultValues, onSubmit, submitLabel }: CustomerF
           disabled={loading}
           className="sm:w-auto"
         >
-          Cancel
+          {tc("cancel")}
         </Button>
         <Button type="submit" disabled={loading} className="sm:w-auto">
-          {loading ? "Saving..." : submitLabel}
+          {loading ? tc("saving") : submitLabel}
         </Button>
       </div>
     </form>

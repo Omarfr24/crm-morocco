@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type Customer = {
   id: string;
@@ -40,13 +41,15 @@ export function CustomerDetail({ customer, onUpdate, onDelete }: CustomerDetailP
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
   const router = useRouter();
+  const t = useTranslations("customers");
+  const tc = useTranslations("common");
 
   async function handleDelete() {
     setDeleting(true);
     setDeleteError("");
     const result = await onDelete();
     if (!result.success) {
-      setDeleteError(result.error ?? "Failed to delete customer.");
+      setDeleteError(result.error ?? t("failedToDelete"));
       setDeleting(false);
       return;
     }
@@ -57,9 +60,9 @@ export function CustomerDetail({ customer, onUpdate, onDelete }: CustomerDetailP
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold">Edit Customer</h2>
+          <h2 className="text-lg font-semibold">{t("editCustomer")}</h2>
           <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>
-            Cancel
+            {tc("cancel")}
           </Button>
         </div>
         <Separator />
@@ -75,7 +78,7 @@ export function CustomerDetail({ customer, onUpdate, onDelete }: CustomerDetailP
               notes: customer.notes ?? "",
             }}
             onSubmit={onUpdate}
-            submitLabel="Save Changes"
+            submitLabel={t("saveChanges")}
           />
         </div>
       </div>
@@ -87,33 +90,33 @@ export function CustomerDetail({ customer, onUpdate, onDelete }: CustomerDetailP
       <div className="flex gap-2">
         <Button onClick={() => setEditing(true)} className="inline-flex items-center gap-1.5" size="sm">
           <Pencil className="size-3.5" />
-          Edit
+          {tc("edit")}
         </Button>
         <Button variant="destructive" onClick={() => setShowDeleteDialog(true)} size="sm" className="inline-flex items-center gap-1.5">
           <Trash2 className="size-3.5" />
-          Delete
+          {tc("delete")}
         </Button>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Contact Information</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("contactInformation")}</h3>
           <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
-            <InfoRow label="Company" value={customer.companyName} />
-            <InfoRow label="Contact Person" value={customer.contactPerson} />
-            <InfoRow label="Phone" value={customer.phone} />
-            <InfoRow label="WhatsApp" value={customer.whatsapp} />
-            <InfoRow label="Email" value={customer.email} />
+            <InfoRow label={t("company")} value={customer.companyName} />
+            <InfoRow label={t("contactPerson")} value={customer.contactPerson} />
+            <InfoRow label={t("phone")} value={customer.phone} />
+            <InfoRow label={t("whatsapp")} value={customer.whatsapp} />
+            <InfoRow label={t("email")} value={customer.email} />
           </div>
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Additional Details</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("additionalDetails")}</h3>
           <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
-            <InfoRow label="Address" value={customer.address} />
-            <InfoRow label="Notes" value={customer.notes} />
+            <InfoRow label={t("address")} value={customer.address} />
+            <InfoRow label={t("notes")} value={customer.notes} />
             <InfoRow
-              label="Created"
+              label={t("created")}
               value={new Date(customer.createdAt).toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "long",
@@ -127,11 +130,8 @@ export function CustomerDetail({ customer, onUpdate, onDelete }: CustomerDetailP
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Customer</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete <strong>{customer.companyName}</strong>?
-              This action cannot be undone.
-            </DialogDescription>
+            <DialogTitle>{t("deleteCustomer")}</DialogTitle>
+            <DialogDescription dangerouslySetInnerHTML={{ __html: t("deleteConfirm", { name: customer.companyName }) }} />
           </DialogHeader>
           {deleteError && (
             <p className="text-sm text-destructive">{deleteError}</p>
@@ -142,14 +142,14 @@ export function CustomerDetail({ customer, onUpdate, onDelete }: CustomerDetailP
               onClick={() => setShowDeleteDialog(false)}
               disabled={deleting}
             >
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={deleting}
             >
-              {deleting ? "Deleting..." : "Delete"}
+              {deleting ? tc("deleting") : tc("delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

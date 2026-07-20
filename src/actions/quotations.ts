@@ -7,6 +7,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { quotationSchema, calculateItemTotal, type QuotationInput } from "@/schemas/quotation";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "@/i18n/request";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
@@ -48,6 +49,7 @@ export async function getQuotations(options?: {
     total: number;
   }>
 > {
+  const { t } = await getTranslations("quotations");
   try {
     await requireAuth();
 
@@ -86,7 +88,7 @@ export async function getQuotations(options?: {
     log("error", "Failed to fetch quotations", {
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to load quotations." };
+    return { success: false, error: t("failedToLoad") };
   }
 }
 
@@ -101,6 +103,7 @@ type QuotationWithRelations = Prisma.QuotationGetPayload<{
 export async function getQuotation(id: string): Promise<
   ActionResult<QuotationWithRelations | null>
 > {
+  const { t } = await getTranslations("quotations");
   try {
     await requireAuth();
 
@@ -114,7 +117,7 @@ export async function getQuotation(id: string): Promise<
     });
 
     if (!quotation) {
-      return { success: false, error: "Quotation not found." };
+      return { success: false, error: t("notFound") };
     }
 
     return { success: true, data: quotation };
@@ -123,13 +126,14 @@ export async function getQuotation(id: string): Promise<
       id,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to load quotation." };
+    return { success: false, error: t("failedToLoad") };
   }
 }
 
 export async function createQuotation(
   input: QuotationInput
 ): Promise<ActionResult<Awaited<ReturnType<typeof db.quotation.create>>>> {
+  const { t } = await getTranslations("quotations");
   try {
     const session = await requireAuth();
 
@@ -179,7 +183,7 @@ export async function createQuotation(
     log("error", "Failed to create quotation", {
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to create quotation. Please try again." };
+    return { success: false, error: t("failedToCreate") };
   }
 }
 
@@ -187,16 +191,17 @@ export async function updateQuotation(
   id: string,
   input: QuotationInput
 ): Promise<ActionResult<Awaited<ReturnType<typeof db.quotation.update>>>> {
+  const { t } = await getTranslations("quotations");
   try {
     await requireAuth();
 
     const existing = await db.quotation.findUnique({ where: { id }, select: { status: true } });
     if (!existing) {
-      return { success: false, error: "Quotation not found." };
+      return { success: false, error: t("notFound") };
     }
 
     if (existing.status !== "DRAFT") {
-      return { success: false, error: "Only draft quotations can be edited." };
+      return { success: false, error: t("onlyDraftEditable") };
     }
 
     const parsed = quotationSchema.safeParse(input);
@@ -246,7 +251,7 @@ export async function updateQuotation(
       id,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to update quotation. Please try again." };
+    return { success: false, error: t("failedToUpdate") };
   }
 }
 
@@ -254,6 +259,7 @@ export async function updateQuotationStatus(
   id: string,
   status: "DRAFT" | "SENT" | "PENDING" | "ACCEPTED" | "REJECTED" | "EXPIRED"
 ): Promise<ActionResult<Awaited<ReturnType<typeof db.quotation.update>>>> {
+  const { t } = await getTranslations("quotations");
   try {
     await requireAuth();
 
@@ -271,11 +277,12 @@ export async function updateQuotationStatus(
       id,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to update status." };
+    return { success: false, error: t("failedToUpdateStatus") };
   }
 }
 
 export async function deleteQuotation(id: string): Promise<ActionResult<void>> {
+  const { t } = await getTranslations("quotations");
   try {
     await requireAuth();
 
@@ -283,7 +290,7 @@ export async function deleteQuotation(id: string): Promise<ActionResult<void>> {
     if (hasInvoice > 0) {
       return {
         success: false,
-        error: "Cannot delete a quotation that has been converted to an invoice.",
+        error: t("cannotDeleteConverted"),
       };
     }
 
@@ -297,6 +304,6 @@ export async function deleteQuotation(id: string): Promise<ActionResult<void>> {
       id,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to delete quotation." };
+    return { success: false, error: t("failedToDelete") };
   }
 }

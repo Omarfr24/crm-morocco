@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { log } from "@/lib/logger";
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const t = useTranslations("auth");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,7 +32,7 @@ export default function LoginPage() {
 
     if (signInError) {
       log("warn", "Login failed", { email });
-      setError("Invalid email or password. Please try again.");
+      setError(t("invalidCredentials"));
       setLoading(false);
       return;
     }
@@ -49,10 +51,10 @@ export default function LoginPage() {
           </span>
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight">
-          Welcome back
+          {t("welcomeBack")}
         </h1>
         <p className="text-muted-foreground text-sm">
-          Sign in to your QuoteFlow account
+          {t("signInSubtitle")}
         </p>
       </div>
 
@@ -64,11 +66,11 @@ export default function LoginPage() {
             </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("email")}</Label>
             <Input
               id="email"
               type="email"
-              placeholder="you@company.com"
+              placeholder={t("emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -78,18 +80,18 @@ export default function LoginPage() {
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("password")}</Label>
               <Link
                 href="/forgot-password"
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                Forgot password?
+                {t("forgotPassword")}
               </Link>
             </div>
             <Input
               id="password"
               type="password"
-              placeholder="Enter your password"
+              placeholder={t("enterPassword")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -99,10 +101,10 @@ export default function LoginPage() {
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
-              "Signing in..."
+              t("signingIn")
             ) : (
               <>
-                Sign In
+                {t("signIn")}
                 <ArrowRight className="size-4 ml-1" />
               </>
             )}

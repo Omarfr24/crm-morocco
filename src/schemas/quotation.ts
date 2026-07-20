@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const quotationItemSchema = z.object({
-  name: z.string().min(1, "Item name is required").max(200),
+  name: z.string().min(1, "item name is required").max(200),
   description: z.string().max(500).optional().or(z.literal("")),
   quantity: z.coerce.number().min(0.01, "Quantity must be at least 0.01"),
   unitPrice: z.coerce.number().min(0, "Unit price must be positive"),

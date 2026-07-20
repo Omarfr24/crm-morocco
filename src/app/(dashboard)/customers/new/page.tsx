@@ -2,8 +2,11 @@ import { PageHeader } from "@/components/shared/page-header";
 import { CustomerForm } from "@/components/shared/customer-form";
 import { createCustomer } from "@/actions/customers";
 import type { CustomerInput } from "@/schemas/customer";
+import { getTranslations } from "@/i18n/request";
 
-export default function NewCustomerPage() {
+export default async function NewCustomerPage() {
+  const { t } = await getTranslations("customers");
+
   async function handleSubmit(data: CustomerInput) {
     "use server";
     return createCustomer(data);
@@ -12,12 +15,12 @@ export default function NewCustomerPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <PageHeader
-        title="New Customer"
-        description="Add a new customer to your CRM"
+        title={t("newCustomer")}
+        description={t("newCustomerDescription")}
       />
       <CustomerForm
         onSubmit={handleSubmit}
-        submitLabel="Create Customer"
+        submitLabel={t("createCustomer")}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getDashboardStats } from "@/actions/dashboard";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { getTranslations } from "@/i18n/request";
 import {
   Users,
   Clock,
@@ -10,9 +11,11 @@ import {
   AlertTriangle,
   FileText,
   Plus,
+  Search,
 } from "lucide-react";
 
 export default async function DashboardPage() {
+  const { t } = await getTranslations("dashboard");
   const result = await getDashboardStats();
 
   const stats = result.success
@@ -30,10 +33,10 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          Dashboard
+          {t("title")}
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Welcome back. Here&apos;s an overview of your business.
+          {t("welcome")}
         </p>
       </div>
 
@@ -48,7 +51,7 @@ export default async function DashboardPage() {
             </span>
             <ArrowRight className="size-4 text-muted-foreground/40 group-hover:text-primary transition-colors" />
           </div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Customers</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("customers")}</p>
           <p className="mt-1 text-2xl font-bold tracking-tight">{stats.totalCustomers}</p>
         </Link>
 
@@ -62,7 +65,7 @@ export default async function DashboardPage() {
             </span>
             <ArrowRight className="size-4 text-muted-foreground/40 group-hover:text-warning transition-colors" />
           </div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Pending Quotes</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("pendingQuotes")}</p>
           <p className="mt-1 text-2xl font-bold tracking-tight">{stats.pendingQuotes}</p>
         </Link>
 
@@ -76,7 +79,7 @@ export default async function DashboardPage() {
             </span>
             <ArrowRight className="size-4 text-muted-foreground/40 group-hover:text-success transition-colors" />
           </div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Accepted Quotes</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("acceptedQuotes")}</p>
           <p className="mt-1 text-2xl font-bold tracking-tight">{stats.acceptedQuotes}</p>
         </Link>
 
@@ -90,7 +93,7 @@ export default async function DashboardPage() {
             </span>
             <ArrowRight className="size-4 text-muted-foreground/40 group-hover:text-primary transition-colors" />
           </div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Revenue</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("revenue")}</p>
           <p className="mt-1 text-2xl font-bold tracking-tight">
             {stats.totalRevenue.toLocaleString("en-MA", {
               minimumFractionDigits: 2,
@@ -103,12 +106,12 @@ export default async function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-3 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold">Recent Quotations</h2>
+            <h2 className="text-base font-semibold">{t("recentQuotations")}</h2>
             <Link
               href="/quotations"
               className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              View All
+              {t("viewAll")}
               <ArrowRight className="size-3.5" />
             </Link>
           </div>
@@ -116,14 +119,14 @@ export default async function DashboardPage() {
             <div className="rounded-xl border bg-card p-8 text-center">
               <FileText className="size-10 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground mb-3">
-                No quotations yet
+                {t("noQuotations")}
               </p>
               <Link
                 href="/quotations/new"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
                 <Plus className="size-3.5" />
-                Create First Quotation
+                {t("createFirstQuotation")}
               </Link>
             </div>
           ) : (
@@ -159,7 +162,7 @@ export default async function DashboardPage() {
         </div>
 
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-base font-semibold">Quick Actions</h2>
+          <h2 className="text-base font-semibold">{t("quickActions")}</h2>
           <div className="grid grid-cols-2 gap-2">
             <Link
               href="/customers/new"
@@ -168,7 +171,7 @@ export default async function DashboardPage() {
               <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Users className="size-5" />
               </span>
-              <span className="text-sm font-medium">New Customer</span>
+              <span className="text-sm font-medium">{t("newCustomer")}</span>
             </Link>
             <Link
               href="/quotations/new"
@@ -177,7 +180,7 @@ export default async function DashboardPage() {
               <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <FileText className="size-5" />
               </span>
-              <span className="text-sm font-medium">New Quotation</span>
+              <span className="text-sm font-medium">{t("newQuotation")}</span>
             </Link>
             <Link
               href="/invoices"
@@ -186,16 +189,16 @@ export default async function DashboardPage() {
               <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <DollarSign className="size-5" />
               </span>
-              <span className="text-sm font-medium">Invoices</span>
+              <span className="text-sm font-medium">{t("invoices")}</span>
             </Link>
             <Link
               href="/search"
               className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 text-center hover:shadow-xs transition-all hover:border-primary/20"
             >
               <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <FileText className="size-5" />
+                <Search className="size-5" />
               </span>
-              <span className="text-sm font-medium">Search</span>
+              <span className="text-sm font-medium">{t("search")}</span>
             </Link>
           </div>
 
@@ -203,7 +206,7 @@ export default async function DashboardPage() {
             <div className="space-y-3">
               <h2 className="text-base font-semibold flex items-center gap-2">
                 <AlertTriangle className="size-4 text-warning" />
-                Follow-up Alerts
+                {t("followUpAlerts")}
               </h2>
               <div className="space-y-1.5">
                 {stats.overdueFollowUps.map((q) => (

@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 
 type StatusVariant = "default" | "secondary" | "destructive" | "outline";
@@ -26,25 +29,28 @@ const STATUS_COLORS: Record<string, string> = {
   PAID: "bg-success/10 text-success border-success/20",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  DRAFT: "Draft",
-  SENT: "Sent",
-  PENDING: "Pending",
-  ACCEPTED: "Accepted",
-  REJECTED: "Rejected",
-  EXPIRED: "Expired",
-  UNPAID: "Unpaid",
-  PARTIALLY_PAID: "Partially Paid",
-  PAID: "Paid",
-};
-
 interface StatusBadgeProps {
   status: string;
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
+  const tq = useTranslations("quotations");
+  const ti = useTranslations("invoices");
+
+  const STATUS_TRANSLATIONS: Record<string, () => string> = {
+    DRAFT: () => tq("statusDraft"),
+    SENT: () => tq("statusSent"),
+    PENDING: () => tq("statusPending"),
+    ACCEPTED: () => tq("statusAccepted"),
+    REJECTED: () => tq("statusRejected"),
+    EXPIRED: () => tq("statusExpired"),
+    UNPAID: () => ti("statusUnpaid"),
+    PARTIALLY_PAID: () => ti("statusPartial"),
+    PAID: () => ti("statusPaid"),
+  };
+
   const variant = STATUS_STYLES[status] ?? "outline";
-  const label = STATUS_LABELS[status] ?? status;
+  const label = STATUS_TRANSLATIONS[status]?.() ?? status;
   const colors = STATUS_COLORS[status] ?? "";
 
   return (

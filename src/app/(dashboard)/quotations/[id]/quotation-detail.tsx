@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { type QuotationInput, calculateItemTotal, calculateQuotationTotal } from "@/schemas/quotation";
 import { QuotationForm } from "@/components/shared/quotation-form";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -50,17 +51,7 @@ type Item = {
 
 type Customer = { id: string; companyName: string };
 
-const STATUS_FLOW: Record<string, { label: string; next: string }[]> = {
-  DRAFT: [{ label: "Mark as Sent", next: "SENT" }],
-  SENT: [
-    { label: "Mark as Pending", next: "PENDING" },
-    { label: "Reject", next: "REJECTED" },
-  ],
-  PENDING: [
-    { label: "Accept", next: "ACCEPTED" },
-    { label: "Reject", next: "REJECTED" },
-  ],
-};
+
 
 interface QuotationDetailProps {
   quotation: Quotation;
@@ -90,6 +81,8 @@ export function QuotationDetail({
   hasInvoice,
 }: QuotationDetailProps) {
   const router = useRouter();
+  const t = useTranslations("quotations");
+  const tc = useTranslations("common");
   const [editing, setEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -104,6 +97,19 @@ export function QuotationDetail({
 
   const grandTotal = calculateQuotationTotal(items);
   const isDraft = quotation.status === "DRAFT";
+
+  const STATUS_FLOW: Record<string, { label: string; next: string }[]> = {
+    DRAFT: [{ label: t("markAsSent"), next: "SENT" }],
+    SENT: [
+      { label: t("markAsPending"), next: "PENDING" },
+      { label: t("reject"), next: "REJECTED" },
+    ],
+    PENDING: [
+      { label: t("accept"), next: "ACCEPTED" },
+      { label: t("reject"), next: "REJECTED" },
+    ],
+  };
+
   const actions = STATUS_FLOW[quotation.status] ?? [];
 
   async function handleStatus(nextStatus: string) {
@@ -118,7 +124,7 @@ export function QuotationDetail({
     setDeleteError("");
     const result = await onDelete();
     if (!result.success) {
-      setDeleteError(result.error ?? "Failed to delete.");
+      setDeleteError(result.error ?? t("failedToDelete"));
       setDeleting(false);
       return;
     }
@@ -130,13 +136,13 @@ export function QuotationDetail({
     if (result.success && result.data) {
       window.open(result.data, "_blank");
     } else {
-      setEmailMessage(result.error ?? "Failed to generate WhatsApp link.");
+      setEmailMessage(result.error ?? t("failedToGenerateWhatsApp"));
     }
   }
 
   async function handleSendEmail() {
     if (!emailInput) {
-      setEmailMessage("Please enter an email address.");
+      setEmailMessage(t("emailRequired"));
       return;
     }
     setEmailLoading(true);
@@ -144,13 +150,13 @@ export function QuotationDetail({
     const result = await onSendEmail(emailInput);
     setEmailLoading(false);
     if (result.success) {
-      setEmailMessage("Email sent successfully!");
+      setEmailMessage(t("emailSentSuccess"));
       setTimeout(() => {
         setShowEmailDialog(false);
         setEmailMessage("");
       }, 2000);
     } else {
-      setEmailMessage(result.error ?? "Failed to send email.");
+      setEmailMessage(result.error ?? t("failedToSendEmail"));
     }
   }
 
@@ -158,9 +164,9 @@ export function QuotationDetail({
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold">Edit Quotation</h2>
+          <h2 className="text-lg font-semibold">{t("editQuotation")}</h2>
           <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>
-            Cancel
+            {tc("cancel")}
           </Button>
         </div>
         <Separator />
@@ -176,7 +182,7 @@ export function QuotationDetail({
             items,
           }}
           onSubmit={onUpdate}
-          submitLabel="Save Changes"
+          submitLabel={tc("save")}
         />
       </div>
     );
@@ -209,27 +215,27 @@ export function QuotationDetail({
           <>
             <Button size="sm" variant="outline" onClick={() => setEditing(true)} className="inline-flex items-center gap-1.5">
               <Pencil className="size-3.5" />
-              Edit
+              {tc("edit")}
             </Button>
             <Button size="sm" variant="destructive" onClick={() => setShowDeleteDialog(true)} className="inline-flex items-center gap-1.5">
               <Trash2 className="size-3.5" />
-              Delete
+              {tc("delete")}
             </Button>
           </>
         )}
         <Button size="sm" variant="outline" className="inline-flex items-center gap-1.5">
           <a href={`/api/pdf/${quotationId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5">
             <Download className="size-3.5" />
-            PDF
+            {t("pdf")}
           </a>
         </Button>
         <Button size="sm" variant="outline" onClick={handleWhatsApp} className="inline-flex items-center gap-1.5">
           <MessageCircle className="size-3.5" />
-          WhatsApp
+          {t("whatsapp")}
         </Button>
         <Button size="sm" variant="outline" onClick={() => setShowEmailDialog(true)} className="inline-flex items-center gap-1.5">
           <Mail className="size-3.5" />
-          Email
+          {t("email")}
         </Button>
         {onConvertToInvoice && (
           <Button
@@ -241,13 +247,13 @@ export function QuotationDetail({
               if (result.success) {
                 router.push(`/invoices/${quotationId}`);
               } else {
-                setError(result.error ?? "Failed to convert to invoice.");
+                setError(result.error ?? t("failedToConvert"));
               }
             }}
             disabled={converting || hasInvoice}
             className="inline-flex items-center gap-1.5"
           >
-            {converting ? "Converting..." : hasInvoice ? "Invoice Exists" : "Convert to Invoice"}
+            {converting ? t("converting") : hasInvoice ? t("invoiceExists") : t("convertToInvoice")}
             {!hasInvoice && !converting && <ArrowRight className="size-3.5" />}
           </Button>
         )}
@@ -255,10 +261,10 @@ export function QuotationDetail({
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Details</h3>
-          <InfoRow label="Customer" value={quotation.customer?.companyName ?? "—"} />
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("details")}</h3>
+          <InfoRow label={t("customer")} value={quotation.customer?.companyName ?? "—"} />
           <InfoRow
-            label="Date"
+            label={t("date")}
             value={new Date(quotation.date).toLocaleDateString("en-GB", {
               day: "2-digit",
               month: "long",
@@ -267,7 +273,7 @@ export function QuotationDetail({
           />
           {quotation.expirationDate && (
             <InfoRow
-              label="Expires"
+              label={t("expires")}
               value={new Date(quotation.expirationDate).toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "long",
@@ -277,7 +283,7 @@ export function QuotationDetail({
           )}
           {quotation.nextFollowUpDate && (
             <InfoRow
-              label="Next Follow-up"
+              label={t("nextFollowUp")}
               value={new Date(quotation.nextFollowUpDate).toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "long",
@@ -287,10 +293,10 @@ export function QuotationDetail({
           )}
         </div>
         <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Reference</h3>
-          <InfoRow label="Quote Number" value={quotation.quoteNumber} />
-          <InfoRow label="Currency" value={quotation.currency} />
-          {quotation.notes && <InfoRow label="Notes" value={quotation.notes} />}
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("reference")}</h3>
+          <InfoRow label={t("quoteNumber")} value={quotation.quoteNumber} />
+          <InfoRow label={t("currency")} value={quotation.currency} />
+          {quotation.notes && <InfoRow label={t("notes")} value={quotation.notes} />}
         </div>
       </div>
 
@@ -298,12 +304,12 @@ export function QuotationDetail({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">
-              <th className="text-left font-medium p-3">Item</th>
-              <th className="text-left font-medium p-3 w-[80px]">Qty</th>
-              <th className="text-left font-medium p-3 w-[100px]">Unit Price</th>
-              <th className="text-left font-medium p-3 w-[80px]">Disc%</th>
-              <th className="text-left font-medium p-3 w-[80px]">Tax%</th>
-              <th className="text-right font-medium p-3 w-[100px]">Total</th>
+              <th className="text-left font-medium p-3">{t("itemName")}</th>
+              <th className="text-left font-medium p-3 w-[80px]">{t("itemQty")}</th>
+              <th className="text-left font-medium p-3 w-[100px]">{t("unitPrice")}</th>
+              <th className="text-left font-medium p-3 w-[80px]">{t("discPercent")}</th>
+              <th className="text-left font-medium p-3 w-[80px]">{t("taxPercent")}</th>
+              <th className="text-right font-medium p-3 w-[100px]">{t("total")}</th>
             </tr>
           </thead>
           <tbody>
@@ -343,10 +349,10 @@ export function QuotationDetail({
               </span>
             </div>
             <div className="flex gap-4 text-xs text-muted-foreground">
-              <span>Qty: {item.quantity}</span>
-              <span>Price: {item.unitPrice.toFixed(2)}</span>
-              {item.discount > 0 && <span>Disc: {item.discount}%</span>}
-              {item.tax > 0 && <span>Tax: {item.tax}%</span>}
+              <span>{t("itemQtyLabel")} {item.quantity}</span>
+              <span>{t("itemPriceLabel")} {item.unitPrice.toFixed(2)}</span>
+              {item.discount > 0 && <span>{t("itemDiscLabel")} {item.discount}%</span>}
+              {item.tax > 0 && <span>{t("itemTaxLabel")} {item.tax}%</span>}
             </div>
           </div>
         ))}
@@ -356,7 +362,7 @@ export function QuotationDetail({
         <div className="w-full sm:w-64 space-y-2">
           <Separator />
           <div className="flex justify-between pt-2 text-sm font-bold">
-            <span>Total ({quotation.currency})</span>
+            <span>{t("totalWithCurrency", { currency: quotation.currency })}</span>
             <span>{grandTotal.toFixed(2)} {quotation.currency}</span>
           </div>
         </div>
@@ -365,19 +371,18 @@ export function QuotationDetail({
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Quotation</DialogTitle>
+            <DialogTitle>{t("deleteQuotation")}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete <strong>{quotation.quoteNumber}</strong>?
-              This action cannot be undone.
+              {t.rich("deleteConfirm", { quoteNumber: quotation.quoteNumber, strong: (chunks) => <strong>{chunks}</strong> })}
             </DialogDescription>
           </DialogHeader>
           {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)} disabled={deleting}>
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-              {deleting ? "Deleting..." : "Delete"}
+              {deleting ? t("deleting") : tc("delete")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -386,15 +391,15 @@ export function QuotationDetail({
       <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Send Quotation via Email</DialogTitle>
+            <DialogTitle>{t("sendEmailTitle")}</DialogTitle>
             <DialogDescription>
-              Send <strong>{quotation.quoteNumber}</strong> as a PDF attachment.
+              {t.rich("sendEmailDescription", { quoteNumber: quotation.quoteNumber, strong: (chunks) => <strong>{chunks}</strong> })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <Input
               type="email"
-              placeholder="recipient@company.com"
+              placeholder={t("recipientPlaceholder")}
               value={emailInput}
               onChange={(e) => setEmailInput(e.target.value)}
               disabled={emailLoading}
@@ -410,7 +415,7 @@ export function QuotationDetail({
               Cancel
             </Button>
             <Button onClick={handleSendEmail} disabled={emailLoading}>
-              {emailLoading ? "Sending..." : "Send Email"}
+              {emailLoading ? tc("sending") : t("sendEmailButton")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -6,6 +6,7 @@ import { log } from "@/lib/logger";
 import { paymentSchema, type PaymentInput } from "@/schemas/invoice";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "@/i18n/request";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
@@ -40,6 +41,7 @@ export async function getInvoices(options?: {
     total: number;
   }>
 > {
+  const { t } = await getTranslations("invoices");
   try {
     await requireAuth();
 
@@ -95,7 +97,7 @@ export async function getInvoices(options?: {
     log("error", "Failed to fetch invoices", {
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to load invoices." };
+    return { success: false, error: t("failedToLoad") };
   }
 }
 
@@ -119,6 +121,7 @@ export async function getInvoice(id: string): Promise<
     } | null
   >
 > {
+  const { t } = await getTranslations("invoices");
   try {
     await requireAuth();
 
@@ -147,7 +150,7 @@ export async function getInvoice(id: string): Promise<
     });
 
     if (!invoice) {
-      return { success: false, error: "Invoice not found." };
+      return { success: false, error: t("invoiceNotFound") };
     }
 
     return { success: true, data: invoice };
@@ -156,7 +159,7 @@ export async function getInvoice(id: string): Promise<
       id,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to load invoice." };
+    return { success: false, error: t("failedToLoad") };
   }
 }
 
@@ -184,6 +187,7 @@ async function updateInvoiceStatus(invoiceId: string) {
 export async function convertToInvoice(
   quotationId: string
 ): Promise<ActionResult<Awaited<ReturnType<typeof db.invoice.create>>>> {
+  const { t } = await getTranslations("invoices");
   try {
     await requireAuth();
 
@@ -193,15 +197,15 @@ export async function convertToInvoice(
     });
 
     if (!quotation) {
-      return { success: false, error: "Quotation not found." };
+      return { success: false, error: t("quotationNotFound") };
     }
 
     if (quotation.invoice) {
-      return { success: false, error: "This quotation has already been converted to an invoice." };
+      return { success: false, error: t("alreadyConverted") };
     }
 
     if (quotation.status !== "ACCEPTED") {
-      return { success: false, error: "Only accepted quotations can be converted to invoices." };
+      return { success: false, error: t("onlyAcceptedConvert") };
     }
 
     const totalAmount = quotation.items.reduce(
@@ -237,7 +241,7 @@ export async function convertToInvoice(
       quotationId,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to create invoice." };
+    return { success: false, error: t("failedToCreate") };
   }
 }
 
@@ -245,6 +249,7 @@ export async function recordPayment(
   invoiceId: string,
   input: PaymentInput
 ): Promise<ActionResult<Omit<Awaited<ReturnType<typeof db.payment.create>>, 'amount'> & { amount: number }>> {
+  const { t } = await getTranslations("invoices");
   try {
     await requireAuth();
 
@@ -260,16 +265,17 @@ export async function recordPayment(
 
     const invoice = await db.invoice.findUnique({ where: { id: invoiceId } });
     if (!invoice) {
-      return { success: false, error: "Invoice not found." };
+      return { success: false, error: t("invoiceNotFound") };
     }
 
     const data = parsed.data;
     const newPaidAmount = Number(invoice.paidAmount) + data.amount;
 
     if (newPaidAmount > Number(invoice.totalAmount)) {
+      const remaining = (Number(invoice.totalAmount) - Number(invoice.paidAmount)).toFixed(2);
       return {
         success: false,
-        error: `Payment amount exceeds remaining balance of ${(Number(invoice.totalAmount) - Number(invoice.paidAmount)).toFixed(2)}.`,
+        error: t("paymentExceedsBalance", { amount: remaining }),
       };
     }
 
@@ -304,26 +310,27 @@ export async function recordPayment(
       invoiceId,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to record payment." };
+    return { success: false, error: t("failedToRecordPayment") };
   }
 }
 
 export async function deletePayment(
   paymentId: string
 ): Promise<ActionResult<void>> {
+  const { t } = await getTranslations("invoices");
   try {
     await requireAuth();
 
     const payment = await db.payment.findUnique({ where: { id: paymentId } });
     if (!payment) {
-      return { success: false, error: "Payment not found." };
+      return { success: false, error: t("paymentNotFound") };
     }
 
     const invoice = await db.invoice.findUnique({
       where: { id: payment.invoiceId },
     });
     if (!invoice) {
-      return { success: false, error: "Invoice not found." };
+      return { success: false, error: t("invoiceNotFound") };
     }
 
     const newPaidAmount = Math.max(0, Number(invoice.paidAmount) - Number(payment.amount));
@@ -346,6 +353,6 @@ export async function deletePayment(
       paymentId,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to delete payment." };
+    return { success: false, error: t("failedToDeletePayment") };
   }
 }

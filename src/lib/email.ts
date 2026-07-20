@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { log } from "@/lib/logger";
+import { getTranslations } from "@/i18n/request";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -16,21 +17,23 @@ export async function sendQuotationEmail({
   quoteNumber,
   pdfBuffer,
 }: SendQuotationEmailParams): Promise<{ success: boolean; error?: string }> {
+  const { t } = await getTranslations("email");
+
   if (!process.env.RESEND_API_KEY) {
     log("warn", "RESEND_API_KEY not configured — skipping email");
-    return { success: false, error: "Email service not configured." };
+    return { success: false, error: t("serviceNotConfigured") };
   }
 
   try {
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL ?? process.env.COMPANY_EMAIL ?? "noreply@yourcompany.com",
       to,
-      subject: `Quotation ${quoteNumber}`,
+      subject: t("quotationSubject", { quoteNumber }),
       html: `
-        <p>Dear ${customerName},</p>
-        <p>Please find attached quotation <strong>${quoteNumber}</strong>.</p>
-        <p>If you have any questions, feel free to reach out.</p>
-        <p>Best regards,<br/>${process.env.COMPANY_NAME ?? "Your Company"}</p>
+        <p>${t("greeting", { customerName })}</p>
+        <p>${t("body", { quoteNumber })}</p>
+        <p>${t("closing")}</p>
+        <p>${t("regards", { companyName: process.env.COMPANY_NAME ?? "Your Company" })}</p>
       `,
       attachments: [
         {
@@ -48,6 +51,6 @@ export async function sendQuotationEmail({
       quoteNumber,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to send email. Please try again." };
+    return { success: false, error: t("failedToSend") };
   }
 }

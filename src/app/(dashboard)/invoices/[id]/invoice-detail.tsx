@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { paymentSchema, type PaymentInput } from "@/schemas/invoice";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
@@ -66,12 +67,7 @@ interface InvoiceDetailProps {
   onDeletePayment: (paymentId: string) => Promise<{ success: boolean; error?: string }>;
 }
 
-const PAYMENT_METHODS = [
-  { value: "CASH", label: "Cash" },
-  { value: "BANK_TRANSFER", label: "Bank Transfer" },
-  { value: "CHECK", label: "Check" },
-  { value: "OTHER", label: "Other" },
-];
+
 
 function todayStr() {
   return new Date().toISOString().split("T")[0];
@@ -85,7 +81,16 @@ export function InvoiceDetail({
   onDeletePayment,
 }: InvoiceDetailProps) {
   const router = useRouter();
+  const t = useTranslations("invoices");
+  const tc = useTranslations("common");
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+
+  const PAYMENT_METHODS = [
+    { value: "CASH", label: t("methodCash") },
+    { value: "BANK_TRANSFER", label: t("methodBankTransfer") },
+    { value: "CHECK", label: t("methodCheck") },
+    { value: "OTHER", label: t("methodOther") },
+  ];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -130,7 +135,7 @@ export function InvoiceDetail({
     const result = await onRecordPayment(parsed.data);
 
     if (!result.success) {
-      setError(result.error ?? "Failed to record payment.");
+      setError(result.error ?? t("failedToRecordPayment"));
       if (result.fieldErrors) setFieldErrors(result.fieldErrors);
       setLoading(false);
       return;
@@ -145,7 +150,7 @@ export function InvoiceDetail({
   async function handleDeletePayment(paymentId: string) {
     const result = await onDeletePayment(paymentId);
     if (!result.success) {
-      setError(result.error ?? "Failed to delete payment.");
+      setError(result.error ?? t("failedToDeletePayment"));
     }
     router.refresh();
   }
@@ -157,44 +162,44 @@ export function InvoiceDetail({
         {remaining > 0 && (
           <Button size="sm" onClick={() => setShowPaymentDialog(true)} className="inline-flex items-center gap-1.5">
             <Plus className="size-3.5" />
-            Record Payment
+            {t("recordPayment")}
           </Button>
         )}
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="rounded-xl border bg-card p-4 space-y-3 text-sm">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Customer</h3>
-          <InfoRow label="Company" value={invoice.quotation.customer.companyName} />
-          <InfoRow label="Contact" value={invoice.quotation.customer.contactPerson} />
-          <InfoRow label="Phone" value={invoice.quotation.customer.phone} />
-          <InfoRow label="Email" value={invoice.quotation.customer.email} />
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t("customer")}</h3>
+          <InfoRow label={t("company")} value={invoice.quotation.customer.companyName} />
+          <InfoRow label={t("contact")} value={invoice.quotation.customer.contactPerson} />
+          <InfoRow label={t("phone")} value={invoice.quotation.customer.phone} />
+          <InfoRow label={t("email")} value={invoice.quotation.customer.email} />
           {invoice.quotation.customer.address && (
-            <InfoRow label="Address" value={invoice.quotation.customer.address} />
+            <InfoRow label={t("address")} value={invoice.quotation.customer.address} />
           )}
         </div>
         <div className="space-y-4">
           <div className="rounded-xl border bg-card p-4 space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Total</span>
+              <span className="text-muted-foreground">{t("totalLabel")}</span>
               <span className="font-bold">{invoice.totalAmount.toFixed(2)} {currency}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Paid</span>
+              <span className="text-muted-foreground">{t("paidLabel")}</span>
               <span className="font-medium text-success">{invoice.paidAmount.toFixed(2)} {currency}</span>
             </div>
             <Separator />
             <div className="flex justify-between text-sm font-bold">
-              <span>Remaining</span>
+              <span>{t("remaining")}</span>
               <span className={remaining > 0 ? "text-destructive" : "text-success"}>
                 {remaining.toFixed(2)} {currency}
               </span>
             </div>
           </div>
           <div className="rounded-xl border bg-card p-4 space-y-1 text-sm">
-            <InfoRow label="Quote" value={invoice.quotation.quoteNumber} />
+            <InfoRow label={t("quote")} value={invoice.quotation.quoteNumber} />
             <InfoRow
-              label="Created"
+              label={t("created")}
               value={new Date(invoice.createdAt).toLocaleDateString("en-GB", {
                 day: "2-digit", month: "long", year: "numeric",
               })}
@@ -204,20 +209,20 @@ export function InvoiceDetail({
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-base font-semibold">Payment History</h3>
+        <h3 className="text-base font-semibold">{t("paymentHistory")}</h3>
         {payments.length === 0 ? (
           <div className="rounded-xl border bg-card p-8 text-center">
-            <p className="text-sm text-muted-foreground">No payments recorded yet.</p>
+            <p className="text-sm text-muted-foreground">{t("noPayments")}</p>
           </div>
         ) : (
           <div className="hidden md:block rounded-xl border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="text-left font-medium p-3">Date</th>
-                  <th className="text-left font-medium p-3">Method</th>
-                  <th className="text-right font-medium p-3">Amount</th>
-                  <th className="text-left font-medium p-3">Notes</th>
+                  <th className="text-left font-medium p-3">{t("paymentDate")}</th>
+                  <th className="text-left font-medium p-3">{t("paymentMethod")}</th>
+                  <th className="text-right font-medium p-3">{t("paymentAmount")}</th>
+                  <th className="text-left font-medium p-3">{t("paymentNotes")}</th>
                   <th className="p-3 w-[50px]" />
                 </tr>
               </thead>
@@ -287,9 +292,9 @@ export function InvoiceDetail({
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Record Payment</DialogTitle>
+            <DialogTitle>{t("recordPayment")}</DialogTitle>
             <DialogDescription>
-              Remaining balance: <strong>{remaining.toFixed(2)} {currency}</strong>
+              {t.rich("remainingBalance", { amount: remaining.toFixed(2), currency, strong: (chunks) => <strong>{chunks}</strong> })}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -299,7 +304,7 @@ export function InvoiceDetail({
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount ({currency}) *</Label>
+              <Label htmlFor="amount">{t("amountLabel", { currency })}</Label>
               <Input
                 id="amount"
                 type="number"
@@ -308,7 +313,7 @@ export function InvoiceDetail({
                 step="0.01"
                 value={form.amount || ""}
                 onChange={(e) => updateField("amount", parseFloat(e.target.value) || 0)}
-                placeholder={`Max: ${remaining.toFixed(2)}`}
+                placeholder={t("amountMax", { amount: remaining.toFixed(2) })}
                 disabled={loading}
               />
               {fieldErrors.amount && (
@@ -316,7 +321,7 @@ export function InvoiceDetail({
               )}
             </div>
             <div className="space-y-2">
-              <Label>Payment Method *</Label>
+              <Label>{t("methodLabel")}</Label>
               <Select
                 value={form.method}
                 onValueChange={(v) => { if (v) updateField("method", v); }}
@@ -338,7 +343,7 @@ export function InvoiceDetail({
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="payDate">Date *</Label>
+              <Label htmlFor="payDate">{t("dateLabel")}</Label>
               <Input
                 id="payDate"
                 type="date"
@@ -351,22 +356,22 @@ export function InvoiceDetail({
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="payNotes">Notes</Label>
+              <Label htmlFor="payNotes">{t("notesLabel")}</Label>
               <Textarea
                 id="payNotes"
                 value={form.notes}
                 onChange={(e) => updateField("notes", e.target.value)}
-                placeholder="Optional payment notes..."
+                placeholder={t("notesPlaceholder")}
                 disabled={loading}
                 rows={2}
               />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setShowPaymentDialog(false)} disabled={loading}>
-                Cancel
+                {tc("cancel")}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? "Recording..." : "Record Payment"}
+                {loading ? t("recording") : t("recordPayment")}
               </Button>
             </DialogFooter>
           </form>

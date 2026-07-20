@@ -3,6 +3,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { db } from "@/lib/db";
 import { QuotationDocument } from "@/components/pdf/quotation-document";
 import { log } from "@/lib/logger";
+import { getTranslations } from "@/i18n/request";
 
 const DEFAULT_COMPANY = {
   name: "Your Company",
@@ -56,6 +57,8 @@ export async function GET(
         }
       : DEFAULT_COMPANY;
 
+    const { t } = await getTranslations("pdf");
+
     const pdfBuffer = await renderToBuffer(
       <QuotationDocument
         data={{
@@ -77,6 +80,22 @@ export async function GET(
             total: Number(it.total),
           })),
           company,
+          translations: {
+            quotation: t("quotation"),
+            billTo: t("billTo"),
+            date: t("date"),
+            validUntil: t("validUntil"),
+            currency: t("currency"),
+            item: t("item"),
+            qty: t("qty"),
+            unitPrice: t("unitPrice"),
+            discPercent: t("discPercent"),
+            taxPercent: t("taxPercent"),
+            total: t("total"),
+            totalLabel: t("totalLabel"),
+            notesAndTerms: t("notesAndTerms"),
+            thankYou: t("thankYou"),
+          },
         }}
       />
     );

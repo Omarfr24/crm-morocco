@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getCustomer, updateCustomer, deleteCustomer } from "@/actions/customers";
 import { PageHeader } from "@/components/shared/page-header";
 import { CustomerDetail } from "./customer-detail";
+import { getTranslations } from "@/i18n/request";
 
 interface CustomerDetailPageProps {
   params: Promise<{ id: string }>;
@@ -10,6 +11,7 @@ interface CustomerDetailPageProps {
 export default async function CustomerDetailPage({ params }: CustomerDetailPageProps) {
   const { id } = await params;
   const result = await getCustomer(id);
+  const { t } = await getTranslations("customers");
 
   if (!result.success || !result.data) {
     notFound();
@@ -35,7 +37,7 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
     <div className="space-y-6">
       <PageHeader
         title={customer.companyName}
-        description={customer.contactPerson ? `Contact: ${customer.contactPerson}` : undefined}
+        description={customer.contactPerson ? t("contactLabel", { name: customer.contactPerson }) : undefined}
       />
       <CustomerDetail
         customer={customer}

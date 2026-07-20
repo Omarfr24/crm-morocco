@@ -2,12 +2,14 @@ import { notFound } from "next/navigation";
 import { getInvoice, recordPayment, deletePayment } from "@/actions/invoices";
 import { PageHeader } from "@/components/shared/page-header";
 import { InvoiceDetail } from "./invoice-detail";
+import { getTranslations } from "@/i18n/request";
 
 interface InvoiceDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function InvoiceDetailPage({ params }: InvoiceDetailPageProps) {
+  const { t } = await getTranslations("invoices");
   const { id } = await params;
   const result = await getInvoice(id);
 

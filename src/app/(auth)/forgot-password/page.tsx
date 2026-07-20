@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Mail } from "lucide-react";
+import { getTranslations } from "@/i18n/request";
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage() {
+  const { t } = await getTranslations("auth");
   return (
     <div className="space-y-8">
       <div className="text-center space-y-2">
@@ -12,10 +14,10 @@ export default function ForgotPasswordPage() {
           </span>
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight">
-          Forgot Password
+          {t("forgotPasswordTitle")}
         </h1>
         <p className="text-muted-foreground text-sm">
-          We&apos;ll help you get back into your account.
+          {t("forgotPasswordSubtitle")}
         </p>
       </div>
 
@@ -25,14 +27,12 @@ export default function ForgotPasswordPage() {
             <Mail className="size-5" />
           </span>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Please contact the system administrator to reset your password.
-            Self-service password reset will be available once email
-            notifications are configured.
+            {t("forgotPasswordInstructions")}
           </p>
           <Link href="/login" className="w-full">
             <Button variant="outline" className="w-full inline-flex items-center gap-1.5">
               <ArrowLeft className="size-4" />
-              Back to Sign In
+              {t("backToSignIn")}
             </Button>
           </Link>
         </div>

@@ -3,8 +3,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 export function ThemeToggle({ className }: { className?: string }) {
+  const t = useTranslations("navigation");
   const [dark, setDark] = useState(false);
 
   useEffect(() => {

@@ -6,6 +6,7 @@ import { log } from "@/lib/logger";
 import { customerSchema, type CustomerInput } from "@/schemas/customer";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "@/i18n/request";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
@@ -24,6 +25,7 @@ export async function getCustomers(options?: {
 }): Promise<
   ActionResult<{ items: Awaited<ReturnType<typeof db.customer.findMany>>; total: number }>
 > {
+  const { t } = await getTranslations("errors");
   try {
     await requireAuth();
 
@@ -58,13 +60,14 @@ export async function getCustomers(options?: {
     log("error", "Failed to fetch customers", {
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to load customers." };
+    return { success: false, error: t("failedToLoadCustomers") };
   }
 }
 
 export async function getCustomer(id: string): Promise<
   ActionResult<Awaited<ReturnType<typeof db.customer.findUnique>>>
 > {
+  const { t } = await getTranslations("errors");
   try {
     await requireAuth();
 
@@ -79,13 +82,14 @@ export async function getCustomer(id: string): Promise<
       id,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to load customer." };
+    return { success: false, error: t("failedToLoadCustomers") };
   }
 }
 
 export async function createCustomer(
   input: CustomerInput
 ): Promise<ActionResult<Awaited<ReturnType<typeof db.customer.create>>>> {
+  const { t } = await getTranslations("errors");
   try {
     await requireAuth();
 
@@ -119,7 +123,7 @@ export async function createCustomer(
     log("error", "Failed to create customer", {
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to create customer. Please try again." };
+    return { success: false, error: t("failedToLoadCustomers") };
   }
 }
 
@@ -127,6 +131,7 @@ export async function updateCustomer(
   id: string,
   input: CustomerInput
 ): Promise<ActionResult<Awaited<ReturnType<typeof db.customer.update>>>> {
+  const { t } = await getTranslations("errors");
   try {
     await requireAuth();
 
@@ -163,13 +168,14 @@ export async function updateCustomer(
       id,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to update customer. Please try again." };
+    return { success: false, error: t("failedToLoadCustomers") };
   }
 }
 
 export async function deleteCustomer(
   id: string
 ): Promise<ActionResult<void>> {
+  const { t } = await getTranslations("errors");
   try {
     await requireAuth();
 
@@ -191,6 +197,6 @@ export async function deleteCustomer(
       id,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to delete customer. Please try again." };
+    return { success: false, error: t("failedToLoadCustomers") };
   }
 }

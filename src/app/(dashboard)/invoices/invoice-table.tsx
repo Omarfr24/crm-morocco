@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import {
   Table,
   TableBody,
@@ -37,12 +38,7 @@ interface InvoiceTableProps {
   statusFilter: string;
 }
 
-const STATUS_OPTIONS = [
-  { value: "", label: "All" },
-  { value: "UNPAID", label: "Unpaid" },
-  { value: "PARTIALLY_PAID", label: "Partial" },
-  { value: "PAID", label: "Paid" },
-];
+
 
 export function InvoiceTable({
   items,
@@ -54,8 +50,17 @@ export function InvoiceTable({
 }: InvoiceTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("invoices");
+  const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [searchInput, setSearchInput] = useState(search);
+
+  const STATUS_OPTIONS = [
+    { value: "", label: t("statusAll") },
+    { value: "UNPAID", label: t("statusUnpaid") },
+    { value: "PARTIALLY_PAID", label: t("statusPartial") },
+    { value: "PAID", label: t("statusPaid") },
+  ];
 
   const totalPages = Math.ceil(total / pageSize);
 
@@ -100,7 +105,7 @@ export function InvoiceTable({
         <form onSubmit={handleSearch} className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <Input
-            placeholder="Search by quote # or customer..."
+            placeholder={t("searchPlaceholder")}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="pl-9"
@@ -130,12 +135,12 @@ export function InvoiceTable({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>Invoice</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Quote #</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-              <TableHead className="text-right">Paid</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t("invoice")}</TableHead>
+              <TableHead>{t("customer")}</TableHead>
+              <TableHead>{t("quoteNumber")}</TableHead>
+              <TableHead className="text-right">{t("totalLabel")}</TableHead>
+              <TableHead className="text-right">{t("paidLabel")}</TableHead>
+              <TableHead>{t("status")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -143,8 +148,8 @@ export function InvoiceTable({
               <TableRow>
                 <TableCell colSpan={6} className="h-32 text-center">
                   <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <p className="text-sm">No invoices found.</p>
-                    <p className="text-xs">Convert an accepted quotation to create one.</p>
+                    <p className="text-sm">{t("noInvoices")}</p>
+                    <p className="text-xs">{t("convertHint")}</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -181,8 +186,8 @@ export function InvoiceTable({
       <div className="md:hidden space-y-2">
         {items.length === 0 ? (
           <div className="rounded-xl border bg-card p-8 text-center">
-            <p className="text-sm text-muted-foreground mb-2">No invoices found.</p>
-            <p className="text-xs text-muted-foreground">Convert an accepted quotation to create one.</p>
+            <p className="text-sm text-muted-foreground mb-2">{t("noInvoices")}</p>
+            <p className="text-xs text-muted-foreground">{t("convertHint")}</p>
           </div>
         ) : (
           items.map((inv) => (
@@ -208,13 +213,13 @@ export function InvoiceTable({
                 </span>
                 <div className="flex gap-3">
                   <span>
-                    <span className="text-muted-foreground">Total </span>
+                    <span className="text-muted-foreground">{t("totalLabel")} </span>
                     <span className="font-mono font-medium">
                       {Number(inv.totalAmount).toFixed(2)}
                     </span>
                   </span>
                   <span>
-                    <span className="text-muted-foreground">Paid </span>
+                    <span className="text-muted-foreground">{t("paidLabel")} </span>
                     <span className="font-mono font-medium text-success">
                       {Number(inv.paidAmount).toFixed(2)}
                     </span>
@@ -229,7 +234,7 @@ export function InvoiceTable({
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Page {page} of {totalPages}
+            {tc("pageXofY", { page: String(page), totalPages: String(totalPages) })}
           </p>
           <div className="flex gap-2">
             <Button
@@ -240,7 +245,7 @@ export function InvoiceTable({
               className="inline-flex items-center gap-1"
             >
               <ChevronLeft className="size-3.5" />
-              Previous
+              {tc("previous")}
             </Button>
             <Button
               variant="outline"
@@ -249,7 +254,7 @@ export function InvoiceTable({
               onClick={() => goToPage(page + 1)}
               className="inline-flex items-center gap-1"
             >
-              Next
+              {tc("next")}
               <ChevronRight className="size-3.5" />
             </Button>
           </div>

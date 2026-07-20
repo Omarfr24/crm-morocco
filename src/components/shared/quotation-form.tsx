@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type CustomerOption = { id: string; companyName: string };
 
@@ -61,6 +62,8 @@ export function QuotationForm({
   onSubmit,
 }: QuotationFormProps) {
   const router = useRouter();
+  const t = useTranslations("quotations");
+  const tc = useTranslations("common");
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -144,7 +147,7 @@ export function QuotationForm({
     const result = await onSubmit(parsed.data);
 
     if (!result.success) {
-      setServerError(result.error ?? "An unexpected error occurred.");
+      setServerError(result.error ?? tc("unexpectedError"));
       if (result.fieldErrors) setFieldErrors(result.fieldErrors);
       setLoading(false);
       return;
@@ -164,14 +167,14 @@ export function QuotationForm({
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-2">
-          <Label>Customer *</Label>
+          <Label>{t("customer")} *</Label>
           <Select
             value={form.customerId}
             onValueChange={(v) => { if (v) updateField("customerId", v); }}
             disabled={loading}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a customer" />
+              <SelectValue placeholder={t("customer")} />
             </SelectTrigger>
             <SelectContent>
               {customers.map((c) => (
@@ -187,7 +190,7 @@ export function QuotationForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="date">Date *</Label>
+          <Label htmlFor="date">{t("date")} *</Label>
           <Input
             id="date"
             type="date"
@@ -201,7 +204,7 @@ export function QuotationForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="expirationDate">Expiration Date</Label>
+          <Label htmlFor="expirationDate">{t("expires")}</Label>
           <Input
             id="expirationDate"
             type="date"
@@ -213,7 +216,7 @@ export function QuotationForm({
       </div>
 
       <div className="space-y-2">
-        <Label>Next Follow-up Date</Label>
+        <Label>{t("nextFollowUp")}</Label>
         <Input
           type="date"
           value={form.nextFollowUpDate}
@@ -224,19 +227,19 @@ export function QuotationForm({
       </div>
 
       <div className="space-y-3">
-        <Label>Line Items *</Label>
+        <Label>{t("items")} *</Label>
 
         <div className="hidden md:block rounded-xl border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="text-left font-medium p-3 min-w-[200px]">Item Name</th>
-                  <th className="text-left font-medium p-3 w-[80px]">Qty</th>
-                  <th className="text-left font-medium p-3 w-[120px]">Unit Price</th>
-                  <th className="text-left font-medium p-3 w-[80px]">Disc %</th>
-                  <th className="text-left font-medium p-3 w-[80px]">Tax %</th>
-                  <th className="text-right font-medium p-3 w-[120px]">Total</th>
+                  <th className="text-left font-medium p-3 min-w-[200px]">{t("itemName")}</th>
+                  <th className="text-left font-medium p-3 w-[80px]">{t("itemQty")}</th>
+                  <th className="text-left font-medium p-3 w-[120px]">{t("unitPrice")}</th>
+                  <th className="text-left font-medium p-3 w-[80px]">{t("discPercent")}</th>
+                  <th className="text-left font-medium p-3 w-[80px]">{t("taxPercent")}</th>
+                  <th className="text-right font-medium p-3 w-[120px]">{t("total")}</th>
                   <th className="p-3 w-[50px]" />
                 </tr>
               </thead>
@@ -249,7 +252,7 @@ export function QuotationForm({
                         <Input
                           value={item.name}
                           onChange={(e) => updateItem(idx, "name", e.target.value)}
-                          placeholder="Item name"
+                          placeholder={t("itemNamePlaceholder")}
                           disabled={loading}
                         />
                       </td>
@@ -327,7 +330,7 @@ export function QuotationForm({
               <div key={idx} className="rounded-xl border bg-card p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-muted-foreground">
-                    Item {idx + 1}
+                    {t("itemNumber", { number: String(idx + 1) })}
                   </span>
                   {form.items.length > 1 && (
                     <Button
@@ -345,12 +348,12 @@ export function QuotationForm({
                 <Input
                   value={item.name}
                   onChange={(e) => updateItem(idx, "name", e.target.value)}
-                  placeholder="Item name"
+                  placeholder={t("itemNamePlaceholder")}
                   disabled={loading}
                 />
                 <div className="grid grid-cols-3 gap-2">
                   <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">Qty</span>
+                    <span className="text-[10px] text-muted-foreground">{t("itemQty")}</span>
                     <Input
                       type="number"
                       min="0"
@@ -361,7 +364,7 @@ export function QuotationForm({
                     />
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">Price</span>
+                    <span className="text-[10px] text-muted-foreground">{t("unitPrice")}</span>
                     <Input
                       type="number"
                       min="0"
@@ -372,7 +375,7 @@ export function QuotationForm({
                     />
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">Total</span>
+                    <span className="text-[10px] text-muted-foreground">{t("total")}</span>
                     <div className="h-10 flex items-center px-3 font-mono text-sm border rounded-lg bg-muted/50">
                       {total.toFixed(2)}
                     </div>
@@ -380,7 +383,7 @@ export function QuotationForm({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">Disc %</span>
+                    <span className="text-[10px] text-muted-foreground">{t("discPercent")}</span>
                     <Input
                       type="number"
                       min="0"
@@ -392,7 +395,7 @@ export function QuotationForm({
                     />
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">Tax %</span>
+                    <span className="text-[10px] text-muted-foreground">{t("taxPercent")}</span>
                     <Input
                       type="number"
                       min="0"
@@ -414,7 +417,7 @@ export function QuotationForm({
         )}
         <Button type="button" variant="outline" size="sm" onClick={addItem} disabled={loading} className="inline-flex items-center gap-1.5">
           <Plus className="size-3.5" />
-          Add Item
+          {t("addItem")}
         </Button>
       </div>
 
@@ -423,7 +426,7 @@ export function QuotationForm({
       <div className="flex justify-end">
         <div className="w-full sm:w-64 space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Total ({currency})</span>
+            <span className="text-muted-foreground">{t("totalWithCurrency", { currency })}</span>
             <span className="text-lg font-bold">
               {grandTotal.toFixed(2)} {currency}
             </span>
@@ -432,12 +435,12 @@ export function QuotationForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">Notes</Label>
+        <Label htmlFor="notes">{t("notes")}</Label>
         <Textarea
           id="notes"
           value={form.notes}
           onChange={(e) => updateField("notes", e.target.value)}
-          placeholder="Terms, conditions, or additional notes..."
+          placeholder={t("notesPlaceholder")}
           disabled={loading}
           rows={3}
         />
@@ -445,10 +448,10 @@ export function QuotationForm({
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row">
         <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading} className="sm:w-auto">
-          Cancel
+          {tc("cancel")}
         </Button>
         <Button type="submit" disabled={loading} className="sm:w-auto">
-          {loading ? "Saving..." : submitLabel}
+          {loading ? tc("saving") : submitLabel}
         </Button>
       </div>
     </form>

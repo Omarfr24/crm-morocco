@@ -67,6 +67,22 @@ type QuotationData = {
     phone: string;
     email: string;
   };
+  translations: {
+    quotation: string;
+    billTo: string;
+    date: string;
+    validUntil: string;
+    currency: string;
+    item: string;
+    qty: string;
+    unitPrice: string;
+    discPercent: string;
+    taxPercent: string;
+    total: string;
+    totalLabel: string;
+    notesAndTerms: string;
+    thankYou: string;
+  };
 };
 
 function calcItemTotal(item: Item): number {
@@ -91,13 +107,13 @@ export function QuotationDocument({ data }: { data: QuotationData }) {
             <Text style={styles.companyDetails}>{data.company.email}</Text>
           </View>
           <View>
-            <Text style={styles.quoteTitle}>QUOTATION</Text>
+            <Text style={styles.quoteTitle}>{data.translations.quotation}</Text>
             <Text style={styles.quoteNumber}>{data.quoteNumber}</Text>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Bill To</Text>
+          <Text style={styles.sectionTitle}>{data.translations.billTo}</Text>
           <Text style={{ fontWeight: "bold" }}>{data.customer.companyName}</Text>
           {data.customer.contactPerson && <Text>{data.customer.contactPerson}</Text>}
           {data.customer.phone && <Text>{data.customer.phone}</Text>}
@@ -107,29 +123,29 @@ export function QuotationDocument({ data }: { data: QuotationData }) {
 
         <View style={styles.section}>
           <View style={styles.row}>
-            <Text style={styles.label}>Date:</Text>
+            <Text style={styles.label}>{data.translations.date}</Text>
             <Text style={styles.value}>{data.date}</Text>
           </View>
           {data.expirationDate && (
             <View style={styles.row}>
-              <Text style={styles.label}>Valid Until:</Text>
+              <Text style={styles.label}>{data.translations.validUntil}</Text>
               <Text style={styles.value}>{data.expirationDate}</Text>
             </View>
           )}
           <View style={styles.row}>
-            <Text style={styles.label}>Currency:</Text>
+            <Text style={styles.label}>{data.translations.currency}</Text>
             <Text style={styles.value}>{data.currency}</Text>
           </View>
         </View>
 
         <View style={styles.table}>
           <View style={styles.tableHeader}>
-            <Text style={styles.colItem}>Item</Text>
-            <Text style={styles.colQty}>Qty</Text>
-            <Text style={styles.colPrice}>Unit Price</Text>
-            <Text style={styles.colDisc}>Disc%</Text>
-            <Text style={styles.colTax}>Tax%</Text>
-            <Text style={styles.colTotal}>Total</Text>
+            <Text style={styles.colItem}>{data.translations.item}</Text>
+            <Text style={styles.colQty}>{data.translations.qty}</Text>
+            <Text style={styles.colPrice}>{data.translations.unitPrice}</Text>
+            <Text style={styles.colDisc}>{data.translations.discPercent}</Text>
+            <Text style={styles.colTax}>{data.translations.taxPercent}</Text>
+            <Text style={styles.colTotal}>{data.translations.total}</Text>
           </View>
           {data.items.map((item, idx) => (
             <View key={idx} style={styles.tableRow}>
@@ -148,20 +164,20 @@ export function QuotationDocument({ data }: { data: QuotationData }) {
 
         <View style={styles.totalSection}>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total:</Text>
+            <Text style={styles.totalLabel}>{data.translations.totalLabel}</Text>
             <Text style={styles.grandTotal}>{grandTotal.toFixed(2)} {data.currency}</Text>
           </View>
         </View>
 
         {data.notes && (
           <View style={styles.notes}>
-            <Text style={styles.notesLabel}>Notes & Terms</Text>
+            <Text style={styles.notesLabel}>{data.translations.notesAndTerms}</Text>
             <Text style={styles.notesText}>{data.notes}</Text>
           </View>
         )}
 
         <Text style={styles.footer}>
-          Thank you for your business!
+          {data.translations.thankYou}
         </Text>
       </Page>
     </Document>

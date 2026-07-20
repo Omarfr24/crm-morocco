@@ -6,6 +6,7 @@ import { log } from "@/lib/logger";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { getTranslations } from "@/i18n/request";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
@@ -37,6 +38,7 @@ export async function getCompanyProfile(): Promise<
     logo: string | null;
   } | null>
 > {
+  const { t } = await getTranslations("settings");
   try {
     await requireAuth();
     const profile = await db.companyProfile.findFirst();
@@ -45,7 +47,7 @@ export async function getCompanyProfile(): Promise<
     log("error", "Failed to fetch company profile", {
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to load company profile." };
+    return { success: false, error: t("failedToLoad") };
   }
 }
 
@@ -54,6 +56,7 @@ type UpsertResult = ActionResult<{ id: string }>;
 export async function upsertCompanyProfile(
   input: CompanyProfileInput
 ): Promise<UpsertResult> {
+  const { t } = await getTranslations("settings");
   try {
     await requireAuth();
 
@@ -100,6 +103,6 @@ export async function upsertCompanyProfile(
     log("error", "Failed to update company profile", {
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to save company profile." };
+    return { success: false, error: t("failedToSave") };
   }
 }

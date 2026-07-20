@@ -7,6 +7,7 @@ import { log } from "@/lib/logger";
 import { sendQuotationEmail } from "@/lib/email";
 import { QuotationDocument } from "@/components/pdf/quotation-document";
 import { headers } from "next/headers";
+import { getTranslations } from "@/i18n/request";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
@@ -46,6 +47,8 @@ async function generatePdfBuffer(quotationId: string): Promise<Buffer | null> {
 
   if (!quotation) return null;
 
+  const { t } = await getTranslations("pdf");
+
   return renderToBuffer(
     <QuotationDocument
       data={{
@@ -67,6 +70,22 @@ async function generatePdfBuffer(quotationId: string): Promise<Buffer | null> {
           total: Number(it.total),
         })),
         company: COMPANY,
+        translations: {
+          quotation: t("quotation"),
+          billTo: t("billTo"),
+          date: t("date"),
+          validUntil: t("validUntil"),
+          currency: t("currency"),
+          item: t("item"),
+          qty: t("qty"),
+          unitPrice: t("unitPrice"),
+          discPercent: t("discPercent"),
+          taxPercent: t("taxPercent"),
+          total: t("total"),
+          totalLabel: t("totalLabel"),
+          notesAndTerms: t("notesAndTerms"),
+          thankYou: t("thankYou"),
+        },
       }}
     />
   );
@@ -76,12 +95,13 @@ export async function sendQuotationPdfEmail(
   quotationId: string,
   recipientEmail: string
 ): Promise<ActionResult<void>> {
+  const { t } = await getTranslations("quotations");
   try {
     await auth.api.getSession({ headers: await headers() });
 
     const pdfBuffer = await generatePdfBuffer(quotationId);
     if (!pdfBuffer) {
-      return { success: false, error: "Quotation not found." };
+      return { success: false, error: t("notFound") };
     }
 
     const quotation = await db.quotation.findUnique({
@@ -90,7 +110,7 @@ export async function sendQuotationPdfEmail(
     });
 
     if (!quotation) {
-      return { success: false, error: "Quotation not found." };
+      return { success: false, error: t("notFound") };
     }
 
     const result = await sendQuotationEmail({
@@ -101,7 +121,7 @@ export async function sendQuotationPdfEmail(
     });
 
     if (!result.success) {
-      return { success: false, error: result.error ?? "Failed to send email." };
+      return { success: false, error: result.error ?? t("failedToSendEmail") };
     }
 
     return { success: true, data: undefined };
@@ -110,13 +130,14 @@ export async function sendQuotationPdfEmail(
       quotationId,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to send email." };
+    return { success: false, error: t("failedToSendEmail") };
   }
 }
 
 export async function getWhatsAppLink(
   quotationId: string
 ): Promise<ActionResult<string>> {
+  const { t } = await getTranslations("quotations");
   try {
     await auth.api.getSession({ headers: await headers() });
 
@@ -128,7 +149,7 @@ export async function getWhatsAppLink(
     });
 
     if (!quotation) {
-      return { success: false, error: "Quotation not found." };
+      return { success: false, error: t("notFound") };
     }
 
     const whatsapp = quotation.customer.whatsapp;
@@ -151,6 +172,6 @@ export async function getWhatsAppLink(
       quotationId,
       error: err instanceof Error ? err.message : "Unknown",
     });
-    return { success: false, error: "Failed to generate WhatsApp link." };
+    return { success: false, error: t("failedToGenerateWhatsApp") };
   }
 }

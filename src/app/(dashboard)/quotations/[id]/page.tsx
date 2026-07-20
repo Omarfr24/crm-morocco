@@ -5,12 +5,14 @@ import { getCustomers } from "@/actions/customers";
 import { sendQuotationPdfEmail, getWhatsAppLink } from "@/actions/sharing";
 import { PageHeader } from "@/components/shared/page-header";
 import { QuotationDetail } from "./quotation-detail";
+import { getTranslations } from "@/i18n/request";
 
 interface QuotationDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function QuotationDetailPage({ params }: QuotationDetailPageProps) {
+  const { t } = await getTranslations("quotations");
   const { id } = await params;
   const result = await getQuotation(id);
 
