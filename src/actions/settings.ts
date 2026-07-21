@@ -1,22 +1,15 @@
 "use server";
 
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getTranslations } from "@/i18n/request";
+import { getOrganizationId } from "@/lib/auth-helpers";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string; fieldErrors?: Record<string, string> };
-
-async function requireAuth() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) throw new Error("Unauthorized");
-  return session;
-}
 
 const companyProfileSchema = z.object({
   name: z.string().min(1, "Company name is required").max(200),
@@ -40,8 +33,10 @@ export async function getCompanyProfile(): Promise<
 > {
   const { t } = await getTranslations("settings");
   try {
-    await requireAuth();
-    const profile = await db.companyProfile.findFirst();
+    const organizationId = await getOrganizationId();
+    const profile = await db.companyProfile.findUnique({
+      where: { organizationId },
+    });
     return { success: true, data: profile };
   } catch (err) {
     log("error", "Failed to fetch company profile", {
@@ -58,7 +53,7 @@ export async function upsertCompanyProfile(
 ): Promise<UpsertResult> {
   const { t } = await getTranslations("settings");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
     const parsed = companyProfileSchema.safeParse(input);
     if (!parsed.success) {
@@ -71,7 +66,9 @@ export async function upsertCompanyProfile(
     }
 
     const data = parsed.data;
-    const existing = await db.companyProfile.findFirst();
+    const existing = await db.companyProfile.findUnique({
+      where: { organizationId },
+    });
 
     if (existing) {
       await db.companyProfile.update({
@@ -92,6 +89,7 @@ export async function upsertCompanyProfile(
           phone: data.phone,
           email: data.email,
           logo: data.logo || null,
+          organizationId,
         },
       });
     }

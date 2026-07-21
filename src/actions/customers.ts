@@ -1,22 +1,15 @@
 "use server";
 
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { customerSchema, type CustomerInput } from "@/schemas/customer";
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "@/i18n/request";
+import { getOrganizationId } from "@/lib/auth-helpers";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string; fieldErrors?: Record<string, string> };
-
-async function requireAuth() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) throw new Error("Unauthorized");
-  return session;
-}
 
 export async function getCustomers(options?: {
   search?: string;
@@ -27,23 +20,23 @@ export async function getCustomers(options?: {
 > {
   const { t } = await getTranslations("errors");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
     const search = options?.search?.trim() ?? "";
     const page = Math.max(1, options?.page ?? 1);
     const pageSize = Math.min(50, Math.max(1, options?.pageSize ?? 20));
     const skip = (page - 1) * pageSize;
 
-    const where = search
-      ? {
-          OR: [
-            { companyName: { contains: search, mode: "insensitive" as const } },
-            { contactPerson: { contains: search, mode: "insensitive" as const } },
-            { email: { contains: search, mode: "insensitive" as const } },
-            { phone: { contains: search } },
-          ],
-        }
-      : {};
+    const where: Record<string, unknown> = { organizationId };
+
+    if (search) {
+      where.OR = [
+        { companyName: { contains: search, mode: "insensitive" as const } },
+        { contactPerson: { contains: search, mode: "insensitive" as const } },
+        { email: { contains: search, mode: "insensitive" as const } },
+        { phone: { contains: search } },
+      ];
+    }
 
     const [items, total] = await Promise.all([
       db.customer.findMany({
@@ -69,9 +62,11 @@ export async function getCustomer(id: string): Promise<
 > {
   const { t } = await getTranslations("errors");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
-    const customer = await db.customer.findUnique({ where: { id } });
+    const customer = await db.customer.findFirst({
+      where: { id, organizationId },
+    });
     if (!customer) {
       return { success: false, error: "Customer not found." };
     }
@@ -91,7 +86,7 @@ export async function createCustomer(
 ): Promise<ActionResult<Awaited<ReturnType<typeof db.customer.create>>>> {
   const { t } = await getTranslations("errors");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
     const parsed = customerSchema.safeParse(input);
     if (!parsed.success) {
@@ -113,6 +108,7 @@ export async function createCustomer(
         email: data.email || null,
         address: data.address || null,
         notes: data.notes || null,
+        organizationId,
       },
     });
 
@@ -133,7 +129,7 @@ export async function updateCustomer(
 ): Promise<ActionResult<Awaited<ReturnType<typeof db.customer.update>>>> {
   const { t } = await getTranslations("errors");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
     const parsed = customerSchema.safeParse(input);
     if (!parsed.success) {
@@ -146,6 +142,15 @@ export async function updateCustomer(
     }
 
     const data = parsed.data;
+
+    const existing = await db.customer.findFirst({
+      where: { id, organizationId },
+      select: { id: true },
+    });
+    if (!existing) {
+      return { success: false, error: "Customer not found." };
+    }
+
     const customer = await db.customer.update({
       where: { id },
       data: {
@@ -177,9 +182,19 @@ export async function deleteCustomer(
 ): Promise<ActionResult<void>> {
   const { t } = await getTranslations("errors");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
-    const hasQuotations = await db.quotation.count({ where: { customerId: id } });
+    const existing = await db.customer.findFirst({
+      where: { id, organizationId },
+      select: { id: true },
+    });
+    if (!existing) {
+      return { success: false, error: "Customer not found." };
+    }
+
+    const hasQuotations = await db.quotation.count({
+      where: { customerId: id, organizationId },
+    });
     if (hasQuotations > 0) {
       return {
         success: false,

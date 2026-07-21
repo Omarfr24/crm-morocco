@@ -18,7 +18,12 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  log("info", "Dashboard session active", { userId: session.user.id });
+  if (!session.user.emailVerified) {
+    log("warn", "Unverified user accessing dashboard", { userId: session.user.id });
+    redirect("/login?error=unverified");
+  }
+
+  log("info", "Dashboard session active", { userId: session.user.id, organizationId: session.user.organizationId });
 
   return (
     <DashboardShell

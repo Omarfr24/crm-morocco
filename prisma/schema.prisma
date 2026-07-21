@@ -22,8 +22,15 @@ model User {
   sessions  Session[]
   accounts  Account[]
 
+  // Multi-tenancy
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  role           UserRole     @default(OWNER)
+
   // CRM business relations
   quotations Quotation[]
+
+  @@index([organizationId])
 }
 
 model Session {
@@ -36,6 +43,9 @@ model Session {
   userAgent    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  // Multi-tenancy: cached from user's organization on session creation
+  activeOrganizationId String?
 
   @@index([userId])
 }
@@ -70,6 +80,25 @@ model Verification {
   @@unique([identifier, value])
 }
 
+// ─── Multi-Tenancy ────────────────────────────────────────────────
+
+enum UserRole {
+  OWNER
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  users          User[]
+  customers      Customer[]
+  quotations     Quotation[]
+  invoices       Invoice[]
+  payments       Payment[]
+  companyProfile CompanyProfile?
+}
+
 // ─── CRM Business Models ──────────────────────────────────────────
 
 model Customer {
@@ -84,11 +113,18 @@ model Customer {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   quotations    Quotation[]
+
+  // Multi-tenancy
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([organizationId, createdAt])
 }
 
 model Quotation {
   id               String          @id @default(cuid())
-  quoteNumber      String          @unique
+  quoteNumber      String
   customerId       String
   customer         Customer        @relation(fields: [customerId], references: [id])
   userId           String
@@ -105,10 +141,19 @@ model Quotation {
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
+  // Multi-tenancy
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, quoteNumber])
   @@index([customerId])
   @@index([userId])
   @@index([status])
   @@index([nextFollowUpDate])
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, createdAt])
+  @@index([organizationId, customerId])
 }
 
 model QuotationItem {
@@ -136,6 +181,14 @@ model Invoice {
   payments    Payment[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  // Multi-tenancy
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, createdAt])
 }
 
 model Payment {
@@ -148,7 +201,13 @@ model Payment {
   notes     String?
   createdAt DateTime      @default(now())
 
+  // Multi-tenancy
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
   @@index([invoiceId])
+  @@index([organizationId])
+  @@index([organizationId, createdAt])
 }
 
 enum QuotationStatus {
@@ -180,4 +239,8 @@ model CompanyProfile {
   phone   String
   email   String
   logo    String?
+
+  // Multi-tenancy: one profile per organization
+  organizationId String   @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }

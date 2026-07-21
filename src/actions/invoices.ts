@@ -1,22 +1,15 @@
 "use server";
 
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { paymentSchema, type PaymentInput } from "@/schemas/invoice";
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "@/i18n/request";
+import { getOrganizationId } from "@/lib/auth-helpers";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string; fieldErrors?: Record<string, string> };
-
-async function requireAuth() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) throw new Error("Unauthorized");
-  return session;
-}
 
 export async function getInvoices(options?: {
   search?: string;
@@ -43,7 +36,7 @@ export async function getInvoices(options?: {
 > {
   const { t } = await getTranslations("invoices");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
     const search = options?.search?.trim() ?? "";
     const status = options?.status?.trim() ?? "";
@@ -51,7 +44,7 @@ export async function getInvoices(options?: {
     const pageSize = Math.min(50, Math.max(1, options?.pageSize ?? 20));
     const skip = (page - 1) * pageSize;
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { organizationId };
 
     if (search) {
       where.OR = [
@@ -123,10 +116,10 @@ export async function getInvoice(id: string): Promise<
 > {
   const { t } = await getTranslations("invoices");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
-    const invoice = await db.invoice.findUnique({
-      where: { id },
+    const invoice = await db.invoice.findFirst({
+      where: { id, organizationId },
       include: {
         quotation: {
           select: {
@@ -189,10 +182,10 @@ export async function convertToInvoice(
 ): Promise<ActionResult<Awaited<ReturnType<typeof db.invoice.create>>>> {
   const { t } = await getTranslations("invoices");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
-    const quotation = await db.quotation.findUnique({
-      where: { id: quotationId },
+    const quotation = await db.quotation.findFirst({
+      where: { id: quotationId, organizationId },
       include: { items: true, invoice: true },
     });
 
@@ -216,6 +209,7 @@ export async function convertToInvoice(
     const invoice = await db.invoice.create({
       data: {
         quotationId,
+        organizationId,
         status: "UNPAID",
         totalAmount,
         paidAmount: 0,
@@ -251,7 +245,7 @@ export async function recordPayment(
 ): Promise<ActionResult<Omit<Awaited<ReturnType<typeof db.payment.create>>, 'amount'> & { amount: number }>> {
   const { t } = await getTranslations("invoices");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
     const parsed = paymentSchema.safeParse(input);
     if (!parsed.success) {
@@ -263,7 +257,9 @@ export async function recordPayment(
       return { success: false, error: "Validation failed", fieldErrors };
     }
 
-    const invoice = await db.invoice.findUnique({ where: { id: invoiceId } });
+    const invoice = await db.invoice.findFirst({
+      where: { id: invoiceId, organizationId },
+    });
     if (!invoice) {
       return { success: false, error: t("invoiceNotFound") };
     }
@@ -282,6 +278,7 @@ export async function recordPayment(
     const payment = await db.payment.create({
       data: {
         invoiceId,
+        organizationId,
         amount: data.amount,
         method: data.method,
         date: new Date(data.date),
@@ -319,9 +316,11 @@ export async function deletePayment(
 ): Promise<ActionResult<void>> {
   const { t } = await getTranslations("invoices");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
-    const payment = await db.payment.findUnique({ where: { id: paymentId } });
+    const payment = await db.payment.findFirst({
+      where: { id: paymentId, organizationId },
+    });
     if (!payment) {
       return { success: false, error: t("paymentNotFound") };
     }

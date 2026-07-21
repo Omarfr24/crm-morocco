@@ -1,20 +1,13 @@
 "use server";
 
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
-import { headers } from "next/headers";
 import { getTranslations } from "@/i18n/request";
+import { getOrganizationId } from "@/lib/auth-helpers";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string };
-
-async function requireAuth() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) throw new Error("Unauthorized");
-  return session;
-}
 
 export async function getDashboardStats(): Promise<
   ActionResult<{
@@ -41,7 +34,7 @@ export async function getDashboardStats(): Promise<
 > {
   const { t } = await getTranslations("errors");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
     const today = new Date();
 
@@ -53,14 +46,15 @@ export async function getDashboardStats(): Promise<
       recentQuotations,
       overdueFollowUps,
     ] = await Promise.all([
-      db.customer.count(),
-      db.quotation.count({ where: { status: "SENT" } }),
-      db.quotation.count({ where: { status: "ACCEPTED" } }),
+      db.customer.count({ where: { organizationId } }),
+      db.quotation.count({ where: { organizationId, status: "SENT" } }),
+      db.quotation.count({ where: { organizationId, status: "ACCEPTED" } }),
       db.invoice.aggregate({
-        where: { status: { in: ["PAID", "PARTIALLY_PAID"] } },
+        where: { organizationId, status: { in: ["PAID", "PARTIALLY_PAID"] } },
         _sum: { paidAmount: true },
       }),
       db.quotation.findMany({
+        where: { organizationId },
         orderBy: { createdAt: "desc" },
         take: 5,
         include: {
@@ -69,6 +63,7 @@ export async function getDashboardStats(): Promise<
       }),
       db.quotation.findMany({
         where: {
+          organizationId,
           nextFollowUpDate: { not: null, lte: today },
           status: { in: ["SENT", "PENDING"] },
         },
@@ -108,7 +103,7 @@ export async function globalSearch(query: string): Promise<
 > {
   const { t } = await getTranslations("errors");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
     const q = query.trim();
     if (!q) {
@@ -121,6 +116,7 @@ export async function globalSearch(query: string): Promise<
     const [customers, quotations, invoices] = await Promise.all([
       db.customer.findMany({
         where: {
+          organizationId,
           OR: [
             { companyName: { contains: q, mode: "insensitive" } },
             { contactPerson: { contains: q, mode: "insensitive" } },
@@ -138,6 +134,7 @@ export async function globalSearch(query: string): Promise<
       }),
       db.quotation.findMany({
         where: {
+          organizationId,
           OR: [
             { quoteNumber: { contains: q, mode: "insensitive" } },
             {
@@ -157,6 +154,7 @@ export async function globalSearch(query: string): Promise<
       }),
       db.invoice.findMany({
         where: {
+          organizationId,
           OR: [
             {
               quotation: {

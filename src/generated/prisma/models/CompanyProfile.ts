@@ -31,6 +31,7 @@ export type CompanyProfileMinAggregateOutputType = {
   phone: string | null
   email: string | null
   logo: string | null
+  organizationId: string | null
 }
 
 export type CompanyProfileMaxAggregateOutputType = {
@@ -40,6 +41,7 @@ export type CompanyProfileMaxAggregateOutputType = {
   phone: string | null
   email: string | null
   logo: string | null
+  organizationId: string | null
 }
 
 export type CompanyProfileCountAggregateOutputType = {
@@ -49,6 +51,7 @@ export type CompanyProfileCountAggregateOutputType = {
   phone: number
   email: number
   logo: number
+  organizationId: number
   _all: number
 }
 
@@ -60,6 +63,7 @@ export type CompanyProfileMinAggregateInputType = {
   phone?: true
   email?: true
   logo?: true
+  organizationId?: true
 }
 
 export type CompanyProfileMaxAggregateInputType = {
@@ -69,6 +73,7 @@ export type CompanyProfileMaxAggregateInputType = {
   phone?: true
   email?: true
   logo?: true
+  organizationId?: true
 }
 
 export type CompanyProfileCountAggregateInputType = {
@@ -78,6 +83,7 @@ export type CompanyProfileCountAggregateInputType = {
   phone?: true
   email?: true
   logo?: true
+  organizationId?: true
   _all?: true
 }
 
@@ -160,6 +166,7 @@ export type CompanyProfileGroupByOutputType = {
   phone: string
   email: string
   logo: string | null
+  organizationId: string
   _count: CompanyProfileCountAggregateOutputType | null
   _min: CompanyProfileMinAggregateOutputType | null
   _max: CompanyProfileMaxAggregateOutputType | null
@@ -190,6 +197,8 @@ export type CompanyProfileWhereInput = {
   phone?: Prisma.StringFilter<"CompanyProfile"> | string
   email?: Prisma.StringFilter<"CompanyProfile"> | string
   logo?: Prisma.StringNullableFilter<"CompanyProfile"> | string | null
+  organizationId?: Prisma.StringFilter<"CompanyProfile"> | string
+  organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
 }
 
 export type CompanyProfileOrderByWithRelationInput = {
@@ -199,10 +208,13 @@ export type CompanyProfileOrderByWithRelationInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   logo?: Prisma.SortOrderInput | Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
+  organization?: Prisma.OrganizationOrderByWithRelationInput
 }
 
 export type CompanyProfileWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  organizationId?: string
   AND?: Prisma.CompanyProfileWhereInput | Prisma.CompanyProfileWhereInput[]
   OR?: Prisma.CompanyProfileWhereInput[]
   NOT?: Prisma.CompanyProfileWhereInput | Prisma.CompanyProfileWhereInput[]
@@ -211,7 +223,8 @@ export type CompanyProfileWhereUniqueInput = Prisma.AtLeast<{
   phone?: Prisma.StringFilter<"CompanyProfile"> | string
   email?: Prisma.StringFilter<"CompanyProfile"> | string
   logo?: Prisma.StringNullableFilter<"CompanyProfile"> | string | null
-}, "id">
+  organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
+}, "id" | "organizationId">
 
 export type CompanyProfileOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -220,6 +233,7 @@ export type CompanyProfileOrderByWithAggregationInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   logo?: Prisma.SortOrderInput | Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
   _count?: Prisma.CompanyProfileCountOrderByAggregateInput
   _max?: Prisma.CompanyProfileMaxOrderByAggregateInput
   _min?: Prisma.CompanyProfileMinOrderByAggregateInput
@@ -235,6 +249,7 @@ export type CompanyProfileScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringWithAggregatesFilter<"CompanyProfile"> | string
   email?: Prisma.StringWithAggregatesFilter<"CompanyProfile"> | string
   logo?: Prisma.StringNullableWithAggregatesFilter<"CompanyProfile"> | string | null
+  organizationId?: Prisma.StringWithAggregatesFilter<"CompanyProfile"> | string
 }
 
 export type CompanyProfileCreateInput = {
@@ -244,6 +259,7 @@ export type CompanyProfileCreateInput = {
   phone: string
   email: string
   logo?: string | null
+  organization: Prisma.OrganizationCreateNestedOneWithoutCompanyProfileInput
 }
 
 export type CompanyProfileUncheckedCreateInput = {
@@ -253,6 +269,7 @@ export type CompanyProfileUncheckedCreateInput = {
   phone: string
   email: string
   logo?: string | null
+  organizationId: string
 }
 
 export type CompanyProfileUpdateInput = {
@@ -262,6 +279,7 @@ export type CompanyProfileUpdateInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organization?: Prisma.OrganizationUpdateOneRequiredWithoutCompanyProfileNestedInput
 }
 
 export type CompanyProfileUncheckedUpdateInput = {
@@ -271,6 +289,7 @@ export type CompanyProfileUncheckedUpdateInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type CompanyProfileCreateManyInput = {
@@ -280,6 +299,7 @@ export type CompanyProfileCreateManyInput = {
   phone: string
   email: string
   logo?: string | null
+  organizationId: string
 }
 
 export type CompanyProfileUpdateManyMutationInput = {
@@ -298,6 +318,12 @@ export type CompanyProfileUncheckedUpdateManyInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type CompanyProfileNullableScalarRelationFilter = {
+  is?: Prisma.CompanyProfileWhereInput | null
+  isNot?: Prisma.CompanyProfileWhereInput | null
 }
 
 export type CompanyProfileCountOrderByAggregateInput = {
@@ -307,6 +333,7 @@ export type CompanyProfileCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   logo?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
 }
 
 export type CompanyProfileMaxOrderByAggregateInput = {
@@ -316,6 +343,7 @@ export type CompanyProfileMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   logo?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
 }
 
 export type CompanyProfileMinOrderByAggregateInput = {
@@ -325,6 +353,91 @@ export type CompanyProfileMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   logo?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
+}
+
+export type CompanyProfileCreateNestedOneWithoutOrganizationInput = {
+  create?: Prisma.XOR<Prisma.CompanyProfileCreateWithoutOrganizationInput, Prisma.CompanyProfileUncheckedCreateWithoutOrganizationInput>
+  connectOrCreate?: Prisma.CompanyProfileCreateOrConnectWithoutOrganizationInput
+  connect?: Prisma.CompanyProfileWhereUniqueInput
+}
+
+export type CompanyProfileUncheckedCreateNestedOneWithoutOrganizationInput = {
+  create?: Prisma.XOR<Prisma.CompanyProfileCreateWithoutOrganizationInput, Prisma.CompanyProfileUncheckedCreateWithoutOrganizationInput>
+  connectOrCreate?: Prisma.CompanyProfileCreateOrConnectWithoutOrganizationInput
+  connect?: Prisma.CompanyProfileWhereUniqueInput
+}
+
+export type CompanyProfileUpdateOneWithoutOrganizationNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyProfileCreateWithoutOrganizationInput, Prisma.CompanyProfileUncheckedCreateWithoutOrganizationInput>
+  connectOrCreate?: Prisma.CompanyProfileCreateOrConnectWithoutOrganizationInput
+  upsert?: Prisma.CompanyProfileUpsertWithoutOrganizationInput
+  disconnect?: Prisma.CompanyProfileWhereInput | boolean
+  delete?: Prisma.CompanyProfileWhereInput | boolean
+  connect?: Prisma.CompanyProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyProfileUpdateToOneWithWhereWithoutOrganizationInput, Prisma.CompanyProfileUpdateWithoutOrganizationInput>, Prisma.CompanyProfileUncheckedUpdateWithoutOrganizationInput>
+}
+
+export type CompanyProfileUncheckedUpdateOneWithoutOrganizationNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyProfileCreateWithoutOrganizationInput, Prisma.CompanyProfileUncheckedCreateWithoutOrganizationInput>
+  connectOrCreate?: Prisma.CompanyProfileCreateOrConnectWithoutOrganizationInput
+  upsert?: Prisma.CompanyProfileUpsertWithoutOrganizationInput
+  disconnect?: Prisma.CompanyProfileWhereInput | boolean
+  delete?: Prisma.CompanyProfileWhereInput | boolean
+  connect?: Prisma.CompanyProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyProfileUpdateToOneWithWhereWithoutOrganizationInput, Prisma.CompanyProfileUpdateWithoutOrganizationInput>, Prisma.CompanyProfileUncheckedUpdateWithoutOrganizationInput>
+}
+
+export type CompanyProfileCreateWithoutOrganizationInput = {
+  id?: string
+  name: string
+  address: string
+  phone: string
+  email: string
+  logo?: string | null
+}
+
+export type CompanyProfileUncheckedCreateWithoutOrganizationInput = {
+  id?: string
+  name: string
+  address: string
+  phone: string
+  email: string
+  logo?: string | null
+}
+
+export type CompanyProfileCreateOrConnectWithoutOrganizationInput = {
+  where: Prisma.CompanyProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyProfileCreateWithoutOrganizationInput, Prisma.CompanyProfileUncheckedCreateWithoutOrganizationInput>
+}
+
+export type CompanyProfileUpsertWithoutOrganizationInput = {
+  update: Prisma.XOR<Prisma.CompanyProfileUpdateWithoutOrganizationInput, Prisma.CompanyProfileUncheckedUpdateWithoutOrganizationInput>
+  create: Prisma.XOR<Prisma.CompanyProfileCreateWithoutOrganizationInput, Prisma.CompanyProfileUncheckedCreateWithoutOrganizationInput>
+  where?: Prisma.CompanyProfileWhereInput
+}
+
+export type CompanyProfileUpdateToOneWithWhereWithoutOrganizationInput = {
+  where?: Prisma.CompanyProfileWhereInput
+  data: Prisma.XOR<Prisma.CompanyProfileUpdateWithoutOrganizationInput, Prisma.CompanyProfileUncheckedUpdateWithoutOrganizationInput>
+}
+
+export type CompanyProfileUpdateWithoutOrganizationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type CompanyProfileUncheckedUpdateWithoutOrganizationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -336,6 +449,8 @@ export type CompanyProfileSelect<ExtArgs extends runtime.Types.Extensions.Intern
   phone?: boolean
   email?: boolean
   logo?: boolean
+  organizationId?: boolean
+  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["companyProfile"]>
 
 export type CompanyProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -345,6 +460,8 @@ export type CompanyProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   phone?: boolean
   email?: boolean
   logo?: boolean
+  organizationId?: boolean
+  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["companyProfile"]>
 
 export type CompanyProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -354,6 +471,8 @@ export type CompanyProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   phone?: boolean
   email?: boolean
   logo?: boolean
+  organizationId?: boolean
+  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["companyProfile"]>
 
 export type CompanyProfileSelectScalar = {
@@ -363,13 +482,25 @@ export type CompanyProfileSelectScalar = {
   phone?: boolean
   email?: boolean
   logo?: boolean
+  organizationId?: boolean
 }
 
-export type CompanyProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "phone" | "email" | "logo", ExtArgs["result"]["companyProfile"]>
+export type CompanyProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "phone" | "email" | "logo" | "organizationId", ExtArgs["result"]["companyProfile"]>
+export type CompanyProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
+}
+export type CompanyProfileIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
+}
+export type CompanyProfileIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
+}
 
 export type $CompanyProfilePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CompanyProfile"
-  objects: {}
+  objects: {
+    organization: Prisma.$OrganizationPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
@@ -377,6 +508,7 @@ export type $CompanyProfilePayload<ExtArgs extends runtime.Types.Extensions.Inte
     phone: string
     email: string
     logo: string | null
+    organizationId: string
   }, ExtArgs["result"]["companyProfile"]>
   composites: {}
 }
@@ -771,6 +903,7 @@ readonly fields: CompanyProfileFieldRefs;
  */
 export interface Prisma__CompanyProfileClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  organization<T extends Prisma.OrganizationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationDefaultArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -806,6 +939,7 @@ export interface CompanyProfileFieldRefs {
   readonly phone: Prisma.FieldRef<"CompanyProfile", 'String'>
   readonly email: Prisma.FieldRef<"CompanyProfile", 'String'>
   readonly logo: Prisma.FieldRef<"CompanyProfile", 'String'>
+  readonly organizationId: Prisma.FieldRef<"CompanyProfile", 'String'>
 }
     
 
@@ -822,6 +956,10 @@ export type CompanyProfileFindUniqueArgs<ExtArgs extends runtime.Types.Extension
    * Omit specific fields from the CompanyProfile
    */
   omit?: Prisma.CompanyProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileInclude<ExtArgs> | null
   /**
    * Filter, which CompanyProfile to fetch.
    */
@@ -841,6 +979,10 @@ export type CompanyProfileFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ex
    */
   omit?: Prisma.CompanyProfileOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileInclude<ExtArgs> | null
+  /**
    * Filter, which CompanyProfile to fetch.
    */
   where: Prisma.CompanyProfileWhereUniqueInput
@@ -858,6 +1000,10 @@ export type CompanyProfileFindFirstArgs<ExtArgs extends runtime.Types.Extensions
    * Omit specific fields from the CompanyProfile
    */
   omit?: Prisma.CompanyProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileInclude<ExtArgs> | null
   /**
    * Filter, which CompanyProfile to fetch.
    */
@@ -907,6 +1053,10 @@ export type CompanyProfileFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Ext
    */
   omit?: Prisma.CompanyProfileOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileInclude<ExtArgs> | null
+  /**
    * Filter, which CompanyProfile to fetch.
    */
   where?: Prisma.CompanyProfileWhereInput
@@ -954,6 +1104,10 @@ export type CompanyProfileFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the CompanyProfile
    */
   omit?: Prisma.CompanyProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileInclude<ExtArgs> | null
   /**
    * Filter, which CompanyProfiles to fetch.
    */
@@ -1003,6 +1157,10 @@ export type CompanyProfileCreateArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   omit?: Prisma.CompanyProfileOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileInclude<ExtArgs> | null
+  /**
    * The data needed to create a CompanyProfile.
    */
   data: Prisma.XOR<Prisma.CompanyProfileCreateInput, Prisma.CompanyProfileUncheckedCreateInput>
@@ -1036,6 +1194,10 @@ export type CompanyProfileCreateManyAndReturnArgs<ExtArgs extends runtime.Types.
    */
   data: Prisma.CompanyProfileCreateManyInput | Prisma.CompanyProfileCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1050,6 +1212,10 @@ export type CompanyProfileUpdateArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the CompanyProfile
    */
   omit?: Prisma.CompanyProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileInclude<ExtArgs> | null
   /**
    * The data needed to update a CompanyProfile.
    */
@@ -1102,6 +1268,10 @@ export type CompanyProfileUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.
    * Limit how many CompanyProfiles to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1116,6 +1286,10 @@ export type CompanyProfileUpsertArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the CompanyProfile
    */
   omit?: Prisma.CompanyProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileInclude<ExtArgs> | null
   /**
    * The filter to search for the CompanyProfile to update in case it exists.
    */
@@ -1142,6 +1316,10 @@ export type CompanyProfileDeleteArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the CompanyProfile
    */
   omit?: Prisma.CompanyProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileInclude<ExtArgs> | null
   /**
    * Filter which CompanyProfile to delete.
    */
@@ -1174,4 +1352,8 @@ export type CompanyProfileDefaultArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the CompanyProfile
    */
   omit?: Prisma.CompanyProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyProfileInclude<ExtArgs> | null
 }

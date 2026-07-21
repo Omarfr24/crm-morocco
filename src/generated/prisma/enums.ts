@@ -9,6 +9,13 @@
 * 🟢 You can import this file directly.
 */
 
+export const UserRole = {
+  OWNER: 'OWNER'
+} as const
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+
+
 export const QuotationStatus = {
   DRAFT: 'DRAFT',
   SENT: 'SENT',

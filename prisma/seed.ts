@@ -26,11 +26,19 @@ async function main() {
 
   const hashedPassword = await hashPassword(password);
 
+  const organization = await prisma.organization.create({
+    data: {
+      name: `${name}'s Organization`,
+    },
+  });
+
   const user = await prisma.user.create({
     data: {
       email,
       name,
       emailVerified: true,
+      organizationId: organization.id,
+      role: "OWNER",
       accounts: {
         create: {
           accountId: email,
@@ -42,6 +50,7 @@ async function main() {
   });
 
   console.log(`Created user: ${user.email} (${user.id})`);
+  console.log(`Created organization: ${organization.name} (${organization.id})`);
 }
 
 main()

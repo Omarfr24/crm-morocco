@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { QuotationDocument } from "@/components/pdf/quotation-document";
 import { log } from "@/lib/logger";
 import { getTranslations } from "@/i18n/request";
+import { auth } from "@/lib/auth";
 
 const DEFAULT_COMPANY = {
   name: "Your Company",
@@ -27,8 +28,18 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const quotation = await db.quotation.findUnique({
-      where: { id },
+    const session = await auth.api.getSession({
+      headers: _request.headers,
+    });
+
+    if (!session) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
+    const organizationId = session.user.organizationId;
+
+    const quotation = await db.quotation.findFirst({
+      where: { id, organizationId },
       include: {
         customer: {
           select: {
@@ -47,7 +58,9 @@ export async function GET(
       return new Response("Quotation not found", { status: 404 });
     }
 
-    const companyProfile = await db.companyProfile.findFirst();
+    const companyProfile = await db.companyProfile.findUnique({
+      where: { organizationId },
+    });
     const company = companyProfile
       ? {
           name: companyProfile.name,

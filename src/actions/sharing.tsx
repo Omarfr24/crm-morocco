@@ -1,13 +1,12 @@
 "use server";
 
 import { renderToBuffer } from "@react-pdf/renderer";
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { sendQuotationEmail } from "@/lib/email";
 import { QuotationDocument } from "@/components/pdf/quotation-document";
-import { headers } from "next/headers";
 import { getTranslations } from "@/i18n/request";
+import { getOrganizationId } from "@/lib/auth-helpers";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
@@ -28,9 +27,9 @@ function formatDate(d: Date | string): string {
   });
 }
 
-async function generatePdfBuffer(quotationId: string): Promise<Buffer | null> {
-  const quotation = await db.quotation.findUnique({
-    where: { id: quotationId },
+async function generatePdfBuffer(quotationId: string, organizationId: string): Promise<Buffer | null> {
+  const quotation = await db.quotation.findFirst({
+    where: { id: quotationId, organizationId },
     include: {
       customer: {
         select: {
@@ -46,6 +45,18 @@ async function generatePdfBuffer(quotationId: string): Promise<Buffer | null> {
   });
 
   if (!quotation) return null;
+
+  const companyProfile = await db.companyProfile.findUnique({
+    where: { organizationId },
+  });
+  const company = companyProfile
+    ? {
+        name: companyProfile.name,
+        address: companyProfile.address,
+        phone: companyProfile.phone,
+        email: companyProfile.email,
+      }
+    : COMPANY;
 
   const { t } = await getTranslations("pdf");
 
@@ -69,7 +80,7 @@ async function generatePdfBuffer(quotationId: string): Promise<Buffer | null> {
           tax: Number(it.tax),
           total: Number(it.total),
         })),
-        company: COMPANY,
+        company,
         translations: {
           quotation: t("quotation"),
           billTo: t("billTo"),
@@ -97,15 +108,15 @@ export async function sendQuotationPdfEmail(
 ): Promise<ActionResult<void>> {
   const { t } = await getTranslations("quotations");
   try {
-    await auth.api.getSession({ headers: await headers() });
+    const organizationId = await getOrganizationId();
 
-    const pdfBuffer = await generatePdfBuffer(quotationId);
+    const pdfBuffer = await generatePdfBuffer(quotationId, organizationId);
     if (!pdfBuffer) {
       return { success: false, error: t("notFound") };
     }
 
-    const quotation = await db.quotation.findUnique({
-      where: { id: quotationId },
+    const quotation = await db.quotation.findFirst({
+      where: { id: quotationId, organizationId },
       include: { customer: { select: { companyName: true } } },
     });
 
@@ -139,10 +150,10 @@ export async function getWhatsAppLink(
 ): Promise<ActionResult<string>> {
   const { t } = await getTranslations("quotations");
   try {
-    await auth.api.getSession({ headers: await headers() });
+    const organizationId = await getOrganizationId();
 
-    const quotation = await db.quotation.findUnique({
-      where: { id: quotationId },
+    const quotation = await db.quotation.findFirst({
+      where: { id: quotationId, organizationId },
       include: {
         customer: { select: { companyName: true, contactPerson: true, whatsapp: true } },
       },

@@ -24,15 +24,25 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const { error: signInError } = await signIn.email({
-      email,
-      password,
-      callbackURL: "/",
-    });
+    const { error: signInError } = await signIn.email(
+      {
+        email,
+        password,
+        callbackURL: "/",
+      },
+      {
+        onError: (ctx: { error: { status?: number } }) => {
+          if (ctx.error.status === 403) {
+            setError(t("emailNotVerified"));
+          } else {
+            setError(t("invalidCredentials"));
+          }
+        },
+      },
+    );
 
     if (signInError) {
       log("warn", "Login failed", { email });
-      setError(t("invalidCredentials"));
       setLoading(false);
       return;
     }
@@ -110,6 +120,12 @@ export default function LoginPage() {
             )}
           </Button>
         </form>
+        <div className="mt-4 text-center text-sm text-muted-foreground">
+          {t("alreadyHaveAccount")}{" "}
+          <Link href="/register" className="text-foreground hover:underline font-medium">
+            {t("createAccount")}
+          </Link>
+        </div>
       </div>
     </div>
   );

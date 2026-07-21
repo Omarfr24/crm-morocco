@@ -1,30 +1,26 @@
 "use server";
 
-import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { log } from "@/lib/logger";
 import { Prisma } from "@/generated/prisma/client";
 import { quotationSchema, calculateItemTotal, type QuotationInput } from "@/schemas/quotation";
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "@/i18n/request";
+import { getOrganizationId, requireAuth } from "@/lib/auth-helpers";
 
 type ActionResult<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string; fieldErrors?: Record<string, string> };
 
-async function requireAuth() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) throw new Error("Unauthorized");
-  return session;
-}
-
-async function generateQuoteNumber(): Promise<string> {
+async function generateQuoteNumber(organizationId: string): Promise<string> {
   const year = new Date().getFullYear();
   const prefix = `QT-${year}-`;
 
   const lastQuote = await db.quotation.findFirst({
-    where: { quoteNumber: { startsWith: prefix } },
+    where: {
+      organizationId,
+      quoteNumber: { startsWith: prefix },
+    },
     orderBy: { quoteNumber: "desc" },
     select: { quoteNumber: true },
   });
@@ -51,7 +47,7 @@ export async function getQuotations(options?: {
 > {
   const { t } = await getTranslations("quotations");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
     const search = options?.search?.trim() ?? "";
     const status = options?.status?.trim() ?? "";
@@ -59,7 +55,7 @@ export async function getQuotations(options?: {
     const pageSize = Math.min(50, Math.max(1, options?.pageSize ?? 20));
     const skip = (page - 1) * pageSize;
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { organizationId };
 
     if (search) {
       where.OR = [
@@ -105,10 +101,10 @@ export async function getQuotation(id: string): Promise<
 > {
   const { t } = await getTranslations("quotations");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
-    const quotation = await db.quotation.findUnique({
-      where: { id },
+    const quotation = await db.quotation.findFirst({
+      where: { id, organizationId },
       include: {
         customer: { select: { companyName: true, contactPerson: true, phone: true, whatsapp: true, email: true } },
         items: true,
@@ -136,6 +132,7 @@ export async function createQuotation(
   const { t } = await getTranslations("quotations");
   try {
     const session = await requireAuth();
+    const organizationId = session.user.organizationId;
 
     const parsed = quotationSchema.safeParse(input);
     if (!parsed.success) {
@@ -148,13 +145,14 @@ export async function createQuotation(
     }
 
     const data = parsed.data;
-    const quoteNumber = await generateQuoteNumber();
+    const quoteNumber = await generateQuoteNumber(organizationId);
 
     const quotation = await db.quotation.create({
       data: {
         quoteNumber,
         customerId: data.customerId,
         userId: session.user.id,
+        organizationId,
         status: "DRAFT",
         currency: data.currency,
         date: new Date(data.date),
@@ -193,9 +191,12 @@ export async function updateQuotation(
 ): Promise<ActionResult<Awaited<ReturnType<typeof db.quotation.update>>>> {
   const { t } = await getTranslations("quotations");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
 
-    const existing = await db.quotation.findUnique({ where: { id }, select: { status: true } });
+    const existing = await db.quotation.findFirst({
+      where: { id, organizationId },
+      select: { status: true },
+    });
     if (!existing) {
       return { success: false, error: t("notFound") };
     }
@@ -261,7 +262,15 @@ export async function updateQuotationStatus(
 ): Promise<ActionResult<Awaited<ReturnType<typeof db.quotation.update>>>> {
   const { t } = await getTranslations("quotations");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
+
+    const existing = await db.quotation.findFirst({
+      where: { id, organizationId },
+      select: { id: true },
+    });
+    if (!existing) {
+      return { success: false, error: t("notFound") };
+    }
 
     const quotation = await db.quotation.update({
       where: { id },
@@ -284,7 +293,15 @@ export async function updateQuotationStatus(
 export async function deleteQuotation(id: string): Promise<ActionResult<void>> {
   const { t } = await getTranslations("quotations");
   try {
-    await requireAuth();
+    const organizationId = await getOrganizationId();
+
+    const existing = await db.quotation.findFirst({
+      where: { id, organizationId },
+      select: { id: true },
+    });
+    if (!existing) {
+      return { success: false, error: t("notFound") };
+    }
 
     const hasInvoice = await db.invoice.count({ where: { quotationId: id } });
     if (hasInvoice > 0) {
