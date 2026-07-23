@@ -47,7 +47,7 @@ export const auth = betterAuth({
     additionalFields: {
       organizationId: {
         type: "string",
-        required: true,
+        required: false,
         input: false,
       },
       role: {
@@ -55,6 +55,11 @@ export const auth = betterAuth({
         required: true,
         defaultValue: "OWNER",
         input: false,
+      },
+      companyName: {
+        type: "string",
+        required: false,
+        input: true,
       },
     },
   },
@@ -77,28 +82,33 @@ export const auth = betterAuth({
     },
     user: {
       create: {
-        after: async (user) => {
+        before: async (data) => {
+          const d = data as { name?: string; email: string; companyName?: string };
+          const orgName = d.companyName
+            || `${d.name || d.email.split("@")[0]}'s Organization`;
+
           const organization = await db.organization.create({
-            data: {
-              name: `${user.name || user.email.split("@")[0]}'s Organization`,
-            },
-          });
-          await db.user.update({
-            where: { id: user.id },
-            data: { organizationId: organization.id },
+            data: { name: orgName },
           });
 
           await db.companyProfile.create({
             data: {
               organizationId: organization.id,
-              name: user.name || user.email.split("@")[0],
-              email: user.email,
+              name: d.name || d.email.split("@")[0],
+              email: d.email,
               address: "",
               phone: "",
             },
           });
 
-          log("info", "Organization and CompanyProfile created for new user", { userId: user.id, organizationId: organization.id });
+          log("info", "Organization and CompanyProfile created for new user", { organizationId: organization.id });
+
+          return {
+            data: {
+              ...data,
+              organizationId: organization.id,
+            },
+          };
         },
       },
     },

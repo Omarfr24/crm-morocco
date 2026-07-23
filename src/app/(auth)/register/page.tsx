@@ -67,7 +67,8 @@ export default function RegisterPage() {
       email,
       password,
       callbackURL: "/",
-    });
+      companyName,
+    } as Parameters<typeof signUp.email>[0]);
 
     if (signUpError) {
       log("warn", "Registration failed", { email, error: signUpError.message });

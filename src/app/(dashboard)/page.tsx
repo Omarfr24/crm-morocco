@@ -13,7 +13,6 @@ import {
   Plus,
   Search,
   Receipt,
-  TrendingUp,
   Calendar,
 } from "lucide-react";
 
@@ -49,7 +48,7 @@ export default async function DashboardPage() {
       <div className="grid gap-4 sm:gap-5 grid-cols-2 lg:grid-cols-4">
         <Link
           href="/customers"
-          className="group rounded-2xl border bg-card p-5 shadow-xs hover:shadow-md transition-all duration-200 hover:border-primary/20"
+          className="group rounded-2xl border bg-card p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-200 hover:border-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <div className="flex items-center justify-between mb-4">
             <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -60,13 +59,13 @@ export default async function DashboardPage() {
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("customers")}</p>
           <p className="mt-1.5 text-3xl font-bold tracking-tight">{stats.totalCustomers}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {stats.totalCustomers > 0 ? `${stats.totalCustomers} total` : t("noCustomersYet") || "No clients yet"}
+            {stats.totalCustomers > 0 ? `${stats.totalCustomers} total` : t("noCustomersYet")}
           </p>
         </Link>
 
         <Link
           href="/quotations?status=SENT"
-          className="group rounded-2xl border bg-card p-5 shadow-xs hover:shadow-md transition-all duration-200 hover:border-amber-200 dark:hover:border-amber-800/50"
+          className="group rounded-2xl border bg-card p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-200 hover:border-amber-200 dark:hover:border-amber-800/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <div className="flex items-center justify-between mb-4">
             <span className="flex size-10 items-center justify-center rounded-xl bg-warning/10 text-warning">
@@ -77,13 +76,13 @@ export default async function DashboardPage() {
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("pendingQuotes")}</p>
           <p className="mt-1.5 text-3xl font-bold tracking-tight">{stats.pendingQuotes}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {stats.pendingQuotes > 0 ? t("awaitingResponse") || "Awaiting response" : t("nonePending") || "None pending"}
+            {stats.pendingQuotes > 0 ? t("awaitingResponse") : t("nonePending")}
           </p>
         </Link>
 
         <Link
           href="/quotations?status=ACCEPTED"
-          className="group rounded-2xl border bg-card p-5 shadow-xs hover:shadow-md transition-all duration-200 hover:border-green-200 dark:hover:border-green-800/50"
+          className="group rounded-2xl border bg-card p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-200 hover:border-green-200 dark:hover:border-green-800/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <div className="flex items-center justify-between mb-4">
             <span className="flex size-10 items-center justify-center rounded-xl bg-success/10 text-success">
@@ -94,13 +93,13 @@ export default async function DashboardPage() {
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("acceptedQuotes")}</p>
           <p className="mt-1.5 text-3xl font-bold tracking-tight">{stats.acceptedQuotes}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {acceptanceRate > 0 ? `${acceptanceRate}% ${t("acceptanceRate") || "acceptance rate"}` : t("noAcceptedYet") || "No accepted yet"}
+            {acceptanceRate > 0 ? `${acceptanceRate}% ${t("acceptanceRate")}` : t("noAcceptedYet")}
           </p>
         </Link>
 
         <Link
           href="/invoices"
-          className="group rounded-2xl border bg-card p-5 shadow-xs hover:shadow-md transition-all duration-200 hover:border-primary/20"
+          className="group rounded-2xl border bg-card p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-200 hover:border-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <div className="flex items-center justify-between mb-4">
             <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -113,11 +112,11 @@ export default async function DashboardPage() {
             {stats.totalRevenue.toLocaleString("en-MA", {
               minimumFractionDigits: 0,
               maximumFractionDigits: 0,
-            })}
+            })}{" "}
+            <span className="text-base font-semibold text-muted-foreground">MAD</span>
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            <span className="font-medium">MAD</span>
-            {stats.totalRevenue > 0 ? ` · ${t("totalCollected") || "Total collected"}` : ` · ${t("noRevenueYet") || "No revenue yet"}`}
+            {stats.totalRevenue > 0 ? t("totalCollected") : t("noRevenueYet")}
           </p>
         </Link>
       </div>
@@ -128,7 +127,7 @@ export default async function DashboardPage() {
             <h2 className="text-lg font-semibold">{t("recentQuotations")}</h2>
             <Link
               href="/quotations"
-              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {t("viewAll")}
               <ArrowRight className="size-3.5" />
@@ -142,7 +141,7 @@ export default async function DashboardPage() {
               </p>
               <Link
                 href="/quotations/new"
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm shadow-primary/20 hover:bg-primary/90 hover:shadow-md transition-all duration-200"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-sm shadow-primary/20 hover:bg-primary/90 hover:shadow-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <Plus className="size-4" />
                 {t("createFirstQuotation")}
@@ -154,7 +153,7 @@ export default async function DashboardPage() {
                 <Link
                   key={q.id}
                   href={`/quotations/${q.id}`}
-                  className="flex items-center justify-between rounded-2xl border bg-card p-4 text-sm hover:shadow-md transition-all duration-200 group"
+                  className="flex items-center justify-between rounded-2xl border bg-card p-4 text-sm hover:shadow-md transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <div className="min-w-0 flex items-center gap-3">
                     <span className="flex size-9 items-center justify-center rounded-xl bg-muted text-muted-foreground shrink-0">
@@ -189,36 +188,36 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-2 gap-3">
             <Link
               href="/customers/new"
-              className="group flex flex-col items-center gap-3 rounded-2xl border bg-card p-5 text-center hover:shadow-md transition-all duration-200 hover:border-primary/20"
+              className="group flex flex-col items-center gap-3 rounded-2xl border bg-card p-5 text-center hover:shadow-md transition-all duration-200 hover:border-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-200">
+              <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-200">
                 <Users className="size-5" />
               </span>
               <span className="text-sm font-medium">{t("newCustomer")}</span>
             </Link>
             <Link
               href="/quotations/new"
-              className="group flex flex-col items-center gap-3 rounded-2xl border bg-card p-5 text-center hover:shadow-md transition-all duration-200 hover:border-primary/20"
+              className="group flex flex-col items-center gap-3 rounded-2xl border bg-card p-5 text-center hover:shadow-md transition-all duration-200 hover:border-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-200">
+              <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-200">
                 <FileText className="size-5" />
               </span>
               <span className="text-sm font-medium">{t("newQuotation")}</span>
             </Link>
             <Link
               href="/invoices"
-              className="group flex flex-col items-center gap-3 rounded-2xl border bg-card p-5 text-center hover:shadow-md transition-all duration-200 hover:border-primary/20"
+              className="group flex flex-col items-center gap-3 rounded-2xl border bg-card p-5 text-center hover:shadow-md transition-all duration-200 hover:border-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-200">
+              <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-200">
                 <Receipt className="size-5" />
               </span>
               <span className="text-sm font-medium">{t("invoices")}</span>
             </Link>
             <Link
               href="/search"
-              className="group flex flex-col items-center gap-3 rounded-2xl border bg-card p-5 text-center hover:shadow-md transition-all duration-200 hover:border-primary/20"
+              className="group flex flex-col items-center gap-3 rounded-2xl border bg-card p-5 text-center hover:shadow-md transition-all duration-200 hover:border-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-200">
+              <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-200">
                 <Search className="size-5" />
               </span>
               <span className="text-sm font-medium">{t("search")}</span>
@@ -236,7 +235,7 @@ export default async function DashboardPage() {
                   <Link
                     key={q.id}
                     href={`/quotations/${q.id}`}
-                    className="flex items-center justify-between rounded-2xl border border-warning/20 bg-warning/5 p-4 text-sm hover:bg-warning/10 transition-colors duration-200"
+                    className="flex items-center justify-between rounded-2xl border border-warning/20 bg-warning/5 p-4 text-sm hover:bg-warning/10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <div className="min-w-0 flex items-center gap-3">
                       <span className="flex size-8 items-center justify-center rounded-lg bg-warning/10 text-warning shrink-0">

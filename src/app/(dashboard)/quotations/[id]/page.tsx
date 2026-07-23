@@ -20,14 +20,10 @@ export default async function QuotationDetailPage({ params }: QuotationDetailPag
     notFound();
   }
 
-  const { items: _rawItems, invoice: _invoice, ...rawQuotation } = result.data;
-  const items = _rawItems.map((it) => ({
-    name: it.name,
+  const { items: rawItems, invoice: _invoice, ...rawQuotation } = result.data;
+  const items = rawItems.map(({ id: _id, quotationId: _qid, ...it }) => ({
+    ...it,
     description: it.description ?? "",
-    quantity: Number(it.quantity),
-    unitPrice: Number(it.unitPrice),
-    discount: Number(it.discount),
-    tax: Number(it.tax),
   }));
 
   const quotationData = {

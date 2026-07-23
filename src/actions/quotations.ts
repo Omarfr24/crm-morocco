@@ -88,6 +88,18 @@ export async function getQuotations(options?: {
   }
 }
 
+type QuotationItemSerialized = {
+  id: string;
+  quotationId: string;
+  name: string;
+  description: string | null;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  tax: number;
+  total: number;
+};
+
 type QuotationWithRelations = Prisma.QuotationGetPayload<{
   include: {
     customer: { select: { companyName: true; contactPerson: true; phone: true; whatsapp: true; email: true } };
@@ -96,8 +108,12 @@ type QuotationWithRelations = Prisma.QuotationGetPayload<{
   };
 }>;
 
+type QuotationSerialized = Omit<QuotationWithRelations, "items"> & {
+  items: QuotationItemSerialized[];
+};
+
 export async function getQuotation(id: string): Promise<
-  ActionResult<QuotationWithRelations | null>
+  ActionResult<QuotationSerialized | null>
 > {
   const { t } = await getTranslations("quotations");
   try {
@@ -116,7 +132,19 @@ export async function getQuotation(id: string): Promise<
       return { success: false, error: t("notFound") };
     }
 
-    return { success: true, data: quotation };
+    const serialized = {
+      ...quotation,
+      items: quotation.items.map((it) => ({
+        ...it,
+        quantity: Number(it.quantity),
+        unitPrice: Number(it.unitPrice),
+        discount: Number(it.discount),
+        tax: Number(it.tax),
+        total: Number(it.total),
+      })),
+    };
+
+    return { success: true, data: serialized };
   } catch (err) {
     log("error", "Failed to fetch quotation", {
       id,
